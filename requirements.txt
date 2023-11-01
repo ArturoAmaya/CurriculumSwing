@@ -1,0 +1,2 @@
+curricularanalytics @ git+https://github.com/ArturoAmaya/CurricularAnalytics.py@1231bf69cd6d9e19d96b60e6848d464720b32c63
+curricularanalyticsdiff @ git+https://github.com/ArturoAmaya/CurricularAnalyticsDiff.py@6497b221ee6e432ae56a995547c6ce845e81dacd
