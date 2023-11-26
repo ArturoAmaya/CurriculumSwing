@@ -13,5 +13,10 @@ This project attempts to find the best case and the worst case scenarios of actu
 
 ### Given those three inputs: 
 
-Calculate the impact of adding 
+Calculate the impact of adding each of the courses from a big set containing all the courses mentioned in $R$. The impact of adding course $c$ at the end of a sequence is defined as:
+
+- +1 to blocking factor for every course $p \in c$'s entire prerequisite field. (They each help unblock one additional course)
+- +$d_c$ for this course where $d_c$ is $c$'s delay factor. $d_c = \text{max}(d_i) + 1$ for $\forall d_i \in c$'s first-level prerequisite field. (i.e. this course was added at the end of a sequence. The longest sequence any of its direct prereqs was involved in is the longest sequence this course is involved in, but plus one because we added a course).
+- +1 to delay factor $\forall x \in c$'s prereq field where $x$'s longest path ends in one of $c$'s level-one prereqs. TODO check this
+
 
