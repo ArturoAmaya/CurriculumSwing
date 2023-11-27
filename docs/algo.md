@@ -20,7 +20,9 @@ Calculate the impact of adding each of the courses from a big set containing all
 - +$d_c$ for this course where $d_c$ is $c$'s delay factor. $d_c = \text{max}(d_i) + 1$ for $\forall d_i \in c$'s first-level prerequisite field. (i.e. this course was added at the end of a sequence. The longest sequence any of its direct prereqs was involved in is the longest sequence this course is involved in, but plus one because we added a course).
 - +1 to delay factor $\forall x \in c$'s prereq field where $x$'s longest path ends in one of $c$'s level-one prereqs. TODO check this
 
-Note that we claculate the impact of adding at the end of a sequence to avoid using any look-ahead type stuff which makes the worst case impact depend on stuff that may never make it in to the curriculum. In any case, something that is not at the end of a sequence has less impact than the course at the end of that sequence because adding the sequence-ender implies also adding the non sequence-ender. 
+For now, just add the courses in and calculate the impact, because the methods for calculating these things is tantamount to adding the course in. 
+
+Note that we calculate the impact of adding at the end of a sequence to avoid using any look-ahead type stuff which makes the worst case impact depend on stuff that may never make it in to the curriculum. In any case, something that is not at the end of a sequence has less impact than the course at the end of that sequence because adding the sequence-ender implies also adding the non sequence-ender. 
 
 #### Sort by impact
 If we're looking for best-case, order the courses lowest to highest impact. If we're looking for worst-case sort by highest to lowest.
