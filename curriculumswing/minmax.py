@@ -26,7 +26,7 @@ def add_course(curr: Curriculum, course_name:str, catalog:List[Course])->Curricu
     return Curriculum(new_curr.name, new_curr.courses + [course], system_type=new_curr.system_type)
 
 
-def add_impact(curr:Curriculum, courses: List[str], catalog:List[Course])->List[tuple[float, Course]]:
+def add_impact(curr:Curriculum, courses: List[str], catalog:List[Course])->List[tuple[float, str]]:
     # to calculate the impact just add the course
     ret = []
     for course_name in courses:
@@ -37,6 +37,9 @@ def add_impact(curr:Curriculum, courses: List[str], catalog:List[Course])->List[
         new_curr.basic_metrics()
         ret.append((new_curr.metrics['complexity'][0] - curr.metrics['complexity'][0], course_name))
     return ret
+
+def organize_impacts(impacts: List[tuple[float, str]], reqs: List[tuple[int, List[str]]])->List[tuple[float, str, List[int]]]:
+    pass
 
 def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
     
@@ -51,6 +54,7 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     impacts = add_impact(curr, flat_reqs, catalog)
     # step 1.5 organize the courses
 
+    organized_impacts = organize_impacts(impacts, reqs)
     # step 2 choose the minimum courses that satisfy reqs
 
     # step 3 add the chosen courses in, calculate stats and return 
