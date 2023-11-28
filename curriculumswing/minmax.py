@@ -38,8 +38,17 @@ def add_impact(curr:Curriculum, courses: List[str], catalog:List[Course])->List[
         ret.append((new_curr.metrics['complexity'][0] - curr.metrics['complexity'][0], course_name))
     return ret
 
-def organize_impacts(impacts: List[tuple[float, str]], reqs: List[tuple[int, List[str]]])->List[tuple[float, str, List[int]]]:
-    pass
+def organize_impacts(impacts: List[tuple[float, str]], reqs: List[tuple[int, List[str]]], max: bool)->List[tuple[float, str, List[int]]]:
+    # if max is true, organize in descending order else organize in ascending order
+    
+    # two options: go through impacts and find which req of reqs they're in
+    # OR go through reqs and keep track of the courses they have. I will do option one - slightly slower but easier to read
+    sorted_impacts = sorted(impacts, key=lambda tup: tup[0], reverse=max)
+    organized_impacts = []
+    for impact in sorted_impacts:
+        ocurrences = [l_index for l_index in range(len(reqs)) if impact[1] in reqs[l_index][1]]
+        organized_impacts.append((impact[0], impact[1], ocurrences))
+    return organized_impacts
 
 def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
     
@@ -54,7 +63,7 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     impacts = add_impact(curr, flat_reqs, catalog)
     # step 1.5 organize the courses
 
-    organized_impacts = organize_impacts(impacts, reqs)
+    organized_impacts = organize_impacts(impacts, reqs, False)
     # step 2 choose the minimum courses that satisfy reqs
 
     # step 3 add the chosen courses in, calculate stats and return 
