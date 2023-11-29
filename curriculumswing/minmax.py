@@ -3,6 +3,7 @@ from curricularanalyticsdiff.HelperFns import course_from_name
 from typing import Dict, List
 import copy
 from collections import OrderedDict
+import random
 
 def add_course(curr: Curriculum, course_name:str, catalog:List[Course])->Curriculum:
     
@@ -50,6 +51,35 @@ def organize_impacts(impacts: List[tuple[float, str]], reqs: List[tuple[int, Lis
         organized_impacts.append((impact[0], impact[1], ocurrences))
     return organized_impacts
 
+def remaining_origins(req_counts: List[int], electives_satisfied: List[int]):
+    count = []
+    for elective in electives_satisfied:
+        if req_counts[elective] > 0:
+            count.append(elective)
+    return count
+
+def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], reqs: List[tuple[int, List[str]]]):
+    req_counts = [req[0] for req in reqs] # flat list of ints. each one 
+    chosen_courses = [[] for req in reqs] # The final choices of courses chosen_courses[i] is a list of courses chosen to match reqs[i]
+    for impact_tup in organized_impacts:
+        impact, course_name, electives_satisfied = impact_tup
+        empty_origins = [True if req_counts[idx] == 0 else False for idx in electives_satisfied]
+        if len(electives_satisfied) == 0 or all(empty_origins): # if the elective satisfies nothing (??) or all of its origins are empty, ignore it
+            continue
+        if len(electives_satisfied) == 1 and req_counts[electives_satisfied[0]] > 0: # if it has one open origin and that origin still has classes remaining
+            chosen_courses[electives_satisfied[0]].append(course_name)
+            req_counts[electives_satisfied[0]]-=1
+        open_slots = remaining_origins(req_counts, electives_satisfied)
+        if len(electives_satisfied) > 1 and len(open_slots) == 1:
+            # add it into the to the list corresponding to 
+            chosen_courses[open_slots[0]].append(course_name)
+            req_counts[open_slots[0]]-=1
+        if len(electives_satisfied) > 1 and len(open_slots)>1:
+            # TODO the much harder logic
+            req_counts[random.randint(1, 7)]-=1 # DEMO TODO remove
+            continue
+    print(chosen_courses)
+
 def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
     
     # step 1: calculate the add impact of each course in reqs
@@ -66,5 +96,6 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     organized_impacts = organize_impacts(impacts, reqs, False)
     # step 2 choose the minimum courses that satisfy reqs
 
+    chosen_courses = choose_courses_min(organized_impacts, reqs)
     # step 3 add the chosen courses in, calculate stats and return 
     pass
