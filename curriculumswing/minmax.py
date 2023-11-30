@@ -59,7 +59,7 @@ def remaining_origins(req_counts: List[int], electives_satisfied: List[int]):
     return count
 
 def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], reqs: List[tuple[int, List[str]]]):
-    req_counts = [req[0] for req in reqs] # flat list of ints. each one 
+    req_counts = [req[0] for req in reqs] # flat list of ints. each one is the remaining number of courses ot choose for that list (corresponding by index so req_counts[i] is remaining # of courses for req[i])
     chosen_courses = [[] for req in reqs] # The final choices of courses chosen_courses[i] is a list of courses chosen to match reqs[i]
     for impact_tup in organized_impacts:
         impact, course_name, electives_satisfied = impact_tup
@@ -69,13 +69,22 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
         if len(electives_satisfied) == 1 and req_counts[electives_satisfied[0]] > 0: # if it has one open origin and that origin still has classes remaining
             chosen_courses[electives_satisfied[0]].append(course_name)
             req_counts[electives_satisfied[0]]-=1
-        open_slots = remaining_origins(req_counts, electives_satisfied)
+        open_slots = remaining_origins(req_counts, electives_satisfied) # which indices are empty?
         if len(electives_satisfied) > 1 and len(open_slots) == 1:
             # add it into the to the list corresponding to 
             chosen_courses[open_slots[0]].append(course_name)
             req_counts[open_slots[0]]-=1
-        if len(electives_satisfied) > 1 and len(open_slots)>1:
+        if len(electives_satisfied) > 1 and len(open_slots)>1: # if has more than one non-full origin
+            # look at those origins' remaining course_counts
+            # for each such origin, look at the [remaining_course_count]-th course that satisfies that origin.
+            # compare the impacts, choose the least bad one.
+            look_ahead_impacts = []
+            for open_slot in open_slots:
+                look_ahead_count = req_counts[open_slot] # this is how many to look ahead to
+                
+
             # TODO the much harder logic
+            # 
             req_counts[random.randint(1, 7)]-=1 # DEMO TODO remove
             continue
     print(chosen_courses)
