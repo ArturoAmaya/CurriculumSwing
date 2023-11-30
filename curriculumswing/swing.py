@@ -1,4 +1,5 @@
 from curricularanalytics import Curriculum, Course
+from curricularanalyticsdiff.HelperFns import course_from_name
 from typing import Dict, List
 import copy
 from collections import OrderedDict
@@ -6,16 +7,20 @@ from collections import OrderedDict
 # add a course from the 
 def add_course_from_catalog(course_name: str, curr:Curriculum, catalog: List[Course]):
     # get the course
-    course = next(c for c in catalog if c.name == course_name)
+    course = copy.deepcopy(next(c for c in catalog if c.name == course_name))
     new_curr = curr
     # get the prereqs and make sure they're all in there
-    for prereq_id in course.requisites:
+    for prereq_id in copy.deepcopy(course.requisites):
         if course.requisites[prereq_id] == "pre":
             prereq = next(c for c in catalog if c.id == prereq_id)
-            if not prereq.name in [c.name for c in curr.courses]:
+            if not prereq.name in [c.name for c in new_curr.courses]:
                 # if it's not in there, add it
-                new_curr = add_course_from_catalog(prereq.name, curr, catalog)
+                new_curr = add_course_from_catalog(prereq.name, new_curr, catalog)
             # else nothing it's already there
+            # actually there is stuff to be done if it is in there: make sure it's hooked up right: delete the existing one and replace with the one in the curriculum
+            elif course_from_name(prereq.name, new_curr).id != prereq_id: #i.e. if the prereq names match but the ids don't bc one was read from file and has a lame low-number id
+                del course.requisites[prereq_id]
+                course.add_requisite(course_from_name(prereq.name, new_curr), "pre")
     # add in this course
     t = copy.deepcopy(new_curr.courses)
     t.append(course)
@@ -43,7 +48,7 @@ def add_course(curriculum: Curriculum, electives:OrderedDict, course: str, catal
         new_curr = add_course_from_catalog(course, curriculum, catalog)
     return new_curr
 
-def course_from_name(name:str, li:List[Course])->Course:
+def course_from_name_catalog(name:str, li:List[Course])->Course:
     for course in li:
         if course.name == name:
             return course
@@ -51,7 +56,7 @@ def course_from_name(name:str, li:List[Course])->Course:
 # remove course from curriculum
 def remove_elective_curr(name:str, curr:Curriculum)->Curriculum:
     t = copy.deepcopy(curr.courses)
-    t.remove(course_from_name(name, t))
+    t.remove(course_from_name_catalog(name, t))
     return Curriculum(curr.name, t)
 
 
