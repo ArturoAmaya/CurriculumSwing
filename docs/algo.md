@@ -43,6 +43,7 @@ or more generally:
 ##### Best case
 For best case loop through top to bottom. For each course $x$ you look at:
 
+- If it has no open origins, ignore it
 - If it only has one origin and that origin still has classes remaining, add it to the corresponding list and -1 on that origin's remaining course count
 - If it has more than one origin but all but one of those origins are full, add it to the list corresponding to the remaining origin and -1 on that origin's remaining course count
 - If it has more than one non-full origin, look at those origin's remaining course count. If you choose $o_xi$ then the other non-full origins can be satisfied by the next {remaining course count} courses that have the same origin down the list. Hence we look at that impact, and choose the least bad one. Ex:
