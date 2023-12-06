@@ -94,11 +94,11 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
             sorted_clah = sorted(compound_look_ahead_impacts)
             if sorted_clah[0] == sorted_clah[1]: # i.e. there is a tie for least bad
                 # call the function with all the decisions that you could take at this point, pick the best and go from there
-                min_choices = [idx for idx, x in enumerate(compound_look_ahead_impacts) if x == min(compound_look_ahead_impacts)]
+                min_choices = [open_slots[idx] for idx, x in enumerate(compound_look_ahead_impacts) if x == min(compound_look_ahead_impacts)]
                 results = []
                 for min_choice in min_choices:
                     # cut the input to take all the decisions
-                    results.append(choose_courses_min(organized_impacts[organized_impacts.index(impact_tup)+1:], req_counts)) # cut me out
+                    results.append(choose_courses_min(organized_impacts[organized_impacts.index(impact_tup)+1:], [count - 1 if idx == min_choice else count for idx,count in enumerate(req_counts)])) # cut me out
 
             else:
                 min_index = compound_look_ahead_impacts.index(min(compound_look_ahead_impacts))
@@ -109,7 +109,7 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
 
 
             continue
-        
+    return chosen_courses
     print(chosen_courses)
 
 def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
@@ -129,5 +129,5 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     # step 2 choose the minimum courses that satisfy reqs
 
     chosen_courses = choose_courses_min(organized_impacts, reqs)
-    # step 3 add the chosen courses in, calculate stats and return 
-    pass
+    # step 3 add the chosen courses in, calculate stats and return TODO
+    return chosen_courses
