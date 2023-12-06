@@ -64,6 +64,8 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
     for impact_tup in organized_impacts:
         impact, course_name, electives_satisfied = impact_tup
         empty_origins = [True if req_counts[idx] == 0 else False for idx in electives_satisfied]
+        if all(count == 0 for count in req_counts):
+                break
         if len(electives_satisfied) == 0 or all(empty_origins): # if the elective satisfies nothing (??) or all of its origins are empty, ignore it
             continue
         if len(electives_satisfied) == 1 and req_counts[electives_satisfied[0]] > 0: # if it has one open origin and that origin still has classes remaining
@@ -88,20 +90,25 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
             
             # ok we have the impacts of each of the choices if that open slot isn't picked. find the least-bad and add that one
             # for each value take the sum of the values in the list without it
-            compound_look_ahead_impacts = [sum(look_ahead_impacts) - x for x in look_ahead_impacts]            
-            min_index = compound_look_ahead_impacts.index(min(compound_look_ahead_impacts))
+            compound_look_ahead_impacts = [sum(look_ahead_impacts) - x for x in look_ahead_impacts]
+            sorted_clah = sorted(compound_look_ahead_impacts)
+            if sorted_clah[0] == sorted_clah[1]: # i.e. there is a tie for least bad
+                # call the function with all the decisions that you could take at this point, pick the best and go from there
+                min_choices = [idx for idx, x in enumerate(compound_look_ahead_impacts) if x == min(compound_look_ahead_impacts)]
+                results = []
+                for min_choice in min_choices:
+                    # cut the input to take all the decisions
+                    results.append(choose_courses_min(organized_impacts[organized_impacts.index(impact_tup)+1:], req_counts)) # cut me out
+
+            else:
+                min_index = compound_look_ahead_impacts.index(min(compound_look_ahead_impacts))
 
             # open_slots and compound_look_ahead_impacts should use the same indices
             chosen_courses[open_slots[min_index]].append(course_name)
             req_counts[open_slots[min_index]]-=1
 
 
-            # TODO the much harder logic
-            # 
-            if all(count == 0 for count in req_counts):
-                break
-            else:
-                continue
+            continue
         
     print(chosen_courses)
 
