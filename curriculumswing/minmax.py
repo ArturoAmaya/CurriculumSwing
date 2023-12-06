@@ -85,11 +85,24 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
                 has_my_origin_future = has_my_origin[has_my_origin.index(impact_tup):] #courses down the list that ^^ (inlcude current for easier list indexing)
                 down_the_line_choice = has_my_origin_future[look_ahead_count]
                 look_ahead_impacts.append(down_the_line_choice[0]) # TODO check if we should use only the last value or the sum of all the values. I think it's just the last one
-            # ok we have the impacts of each of the open slots
+            
+            # ok we have the impacts of each of the choices if that open slot isn't picked. find the least-bad and add that one
+            # for each value take the sum of the values in the list without it
+            compound_look_ahead_impacts = [sum(look_ahead_impacts) - x for x in look_ahead_impacts]            
+            min_index = compound_look_ahead_impacts.index(min(compound_look_ahead_impacts))
+
+            # open_slots and compound_look_ahead_impacts should use the same indices
+            chosen_courses[open_slots[min_index]].append(course_name)
+            req_counts[open_slots[min_index]]-=1
+
+
             # TODO the much harder logic
             # 
-            req_counts[random.randint(1, 7)]-=1 # DEMO TODO remove
-            continue
+            if all(count == 0 for count in req_counts):
+                break
+            else:
+                continue
+        
     print(chosen_courses)
 
 def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
