@@ -117,8 +117,11 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
                 # min choices and results share indices
                 chosen_courses[min_index].append(course_name)
                 req_counts[min_index] -= 1
-                total_impact += impact   
+                total_impact += impact
 
+                # TODO: note that you've already traversed the tree you're about to traverse here.
+                # If you can merge the ongoing results with the minimum ones you just found you can 
+                # easily finish here.
             else:
                 # if there's a clear winner find the index of the winner in the original list
                 min_index = compound_look_ahead_impacts.index(min(compound_look_ahead_impacts))
@@ -126,7 +129,6 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
                 chosen_courses[open_slots[min_index]].append(course_name)
                 req_counts[open_slots[min_index]]-=1
                 total_impact += impact
-
     return (chosen_courses, total_impact) # TODO total impact caluclation
 
 def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
@@ -140,11 +142,13 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     flat_reqs = sorted(list(set(flat_reqs)))
 
     impacts = add_impact(curr, flat_reqs, catalog)
+
     # step 1.5 organize the courses
-
     organized_impacts = organize_impacts(impacts, reqs, False)
-    # step 2 choose the minimum courses that satisfy reqs
 
+    # step 2 choose the minimum courses that satisfy reqs
     (chosen_courses, estimated_total_impact) = choose_courses_min(organized_impacts, reqs)
     # step 3 add the chosen courses in, calculate stats and return TODO
+
+
     return chosen_courses
