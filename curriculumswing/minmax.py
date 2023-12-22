@@ -26,6 +26,12 @@ def add_course(curr: Curriculum, course_name:str, catalog:List[Course])->Curricu
                 course.add_requisite(course_from_name(prereq.name, new_curr), "pre")
     return Curriculum(new_curr.name, new_curr.courses + [course], system_type=new_curr.system_type)
 
+def add_courses(curr:Curriculum, courses:List[List[str]], catalog:List[Course])->Curriculum:
+    new_curr = copy.deepcopy(curr)
+    for elective_list in courses:
+        for course in elective_list:
+            new_curr = add_course(new_curr, course, catalog)
+    return new_curr
 
 def add_impact(curr:Curriculum, courses: List[str], catalog:List[Course])->List[tuple[float, str]]:
     # to calculate the impact just add the course
@@ -148,7 +154,8 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
 
     # step 2 choose the minimum courses that satisfy reqs
     (chosen_courses, estimated_total_impact) = choose_courses_min(organized_impacts, reqs)
-    # step 3 add the chosen courses in, calculate stats and return TODO
 
+    # step 3 add the chosen courses in, calculate stats and return TODO
+    new_curr = add_courses()
 
     return chosen_courses
