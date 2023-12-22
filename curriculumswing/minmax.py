@@ -61,6 +61,7 @@ def remaining_origins(req_counts: List[int], electives_satisfied: List[int]):
 def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], reqs: List[tuple[int, List[str]]]):
     req_counts = [req[0] for req in reqs] # flat list of ints. each one is the remaining number of courses ot choose for that list (corresponding by index so req_counts[i] is remaining # of courses for req[i])
     chosen_courses = [[] for req in reqs] # The final choices of courses chosen_courses[i] is a list of courses chosen to match reqs[i]
+    total_impact = 0
     for impact_tup in organized_impacts:
         impact, course_name, electives_satisfied = impact_tup
         empty_origins = [True if req_counts[idx] == 0 else False for idx in electives_satisfied]
@@ -71,11 +72,15 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
         if len(electives_satisfied) == 1 and req_counts[electives_satisfied[0]] > 0: # if it has one open origin and that origin still has classes remaining
             chosen_courses[electives_satisfied[0]].append(course_name)
             req_counts[electives_satisfied[0]]-=1
+            total_impact += impact
+
         open_slots = remaining_origins(req_counts, electives_satisfied) # which indices are empty?
         if len(electives_satisfied) > 1 and len(open_slots) == 1:
             # add it into the to the list corresponding to 
             chosen_courses[open_slots[0]].append(course_name)
             req_counts[open_slots[0]]-=1
+            total_impact += impact
+
         if len(electives_satisfied) > 1 and len(open_slots)>1: # if has more than one non-full origin
             # look at those origins' remaining course_counts
             # for each such origin, look at the [remaining_course_count]-th course that satisfies that origin.
@@ -92,25 +97,37 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
             # for each value take the sum of the values in the list without it
             compound_look_ahead_impacts = [sum(look_ahead_impacts) - x for x in look_ahead_impacts]
             sorted_clah = sorted(compound_look_ahead_impacts)
-            if sorted_clah[0] == sorted_clah[1]: # i.e. there is a tie for least bad
+            # in early tests, the tiebreaking leads to a ton of recursion that seems to behave exactly like trying all the options.
+            # let's use a heuristic along the lines of if the next x courses all have the same exact impact don't recurse and just pick the first one
+            # for now let's say the lookahead value is 3 * the total number for remaining reqs. 3 should really depend on the density of the choices, but whatever TODO
+            heuristic_lookahead = 3 * sum(req_counts)
+            #round(organized_impacts[organized_impacts.index(impact_tup) + heuristic_lookahead][0], 1) == round(impact,1):
+            if sorted_clah[0] == sorted_clah[1] and round(organized_impacts[organized_impacts.index(impact_tup) + heuristic_lookahead][0], 1) != round(impact,1): # i.e. there is a tie for least bad
                 # call the function with all the decisions that you could take at this point, pick the best and go from there
                 min_choices = [open_slots[idx] for idx, x in enumerate(compound_look_ahead_impacts) if x == min(compound_look_ahead_impacts)]
                 results = []
                 for min_choice in min_choices:
                     # cut the input to take all the decisions
-                    results.append(choose_courses_min(organized_impacts[organized_impacts.index(impact_tup)+1:], [count - 1 if idx == min_choice else count for idx,count in enumerate(req_counts)])) # cut me out
+                    results.append(choose_courses_min(organized_impacts[organized_impacts.index(impact_tup)+1:], [(req_counts[idx] - 1,elecs) if idx == min_choice else (req_counts[idx],elecs) for idx,(count, elecs) in enumerate(reqs)])) # cut me out
+                    
+                    # find the index of the minimum impact
+                    # from the smallest result find the min_choice that produced it
+                    min_index = min_choices[results.index(min(results, key=lambda x: x[1]))]
+
+                    # min choices and results share indices
+                    chosen_courses[min_index].append(course_name)
+                    req_counts[min_index] -= 1
+                    total_impact += impact
 
             else:
+                # if there's a clear winner find the index of the winner in the original list
                 min_index = compound_look_ahead_impacts.index(min(compound_look_ahead_impacts))
+                # open_slots and compound_look_ahead_impacts should use the same indices
+                chosen_courses[open_slots[min_index]].append(course_name)
+                req_counts[open_slots[min_index]]-=1
+                total_impact += impact
 
-            # open_slots and compound_look_ahead_impacts should use the same indices
-            chosen_courses[open_slots[min_index]].append(course_name)
-            req_counts[open_slots[min_index]]-=1
-
-
-            continue
-    return chosen_courses
-    print(chosen_courses)
+    return (chosen_courses, total_impact) # TODO total impact caluclation
 
 def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
     
