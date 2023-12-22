@@ -110,14 +110,14 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
                     # cut the input to take all the decisions
                     results.append(choose_courses_min(organized_impacts[organized_impacts.index(impact_tup)+1:], [(req_counts[idx] - 1,elecs) if idx == min_choice else (req_counts[idx],elecs) for idx,(count, elecs) in enumerate(reqs)])) # cut me out
                     
-                    # find the index of the minimum impact
-                    # from the smallest result find the min_choice that produced it
-                    min_index = min_choices[results.index(min(results, key=lambda x: x[1]))]
-
-                    # min choices and results share indices
-                    chosen_courses[min_index].append(course_name)
-                    req_counts[min_index] -= 1
-                    total_impact += impact
+                    
+                # find the index of the minimum impact
+                # from the smallest result find the min_choice that produced it
+                min_index = min_choices[results.index(min(results, key=lambda x: x[1]))]
+                # min choices and results share indices
+                chosen_courses[min_index].append(course_name)
+                req_counts[min_index] -= 1
+                total_impact += impact   
 
             else:
                 # if there's a clear winner find the index of the winner in the original list
@@ -145,6 +145,6 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     organized_impacts = organize_impacts(impacts, reqs, False)
     # step 2 choose the minimum courses that satisfy reqs
 
-    chosen_courses = choose_courses_min(organized_impacts, reqs)
+    (chosen_courses, estimated_total_impact) = choose_courses_min(organized_impacts, reqs)
     # step 3 add the chosen courses in, calculate stats and return TODO
     return chosen_courses
