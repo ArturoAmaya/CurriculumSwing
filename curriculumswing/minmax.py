@@ -159,4 +159,10 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     new_curr = add_courses(curr, chosen_courses, catalog)
 
     # step 4 calculate stats
-    return chosen_courses
+    new_metrics = new_curr.complexity()[0]
+    base_metrics = curr.complexity()[0]
+
+    if ( round(new_metrics - base_metrics, 2) < round(estimated_total_impact, 2)):
+        print("error")
+
+    return (chosen_courses, new_curr)
