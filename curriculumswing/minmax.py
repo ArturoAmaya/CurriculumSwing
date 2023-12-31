@@ -72,7 +72,7 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
         impact, course_name, electives_satisfied = impact_tup
         empty_origins = [True if req_counts[idx] == 0 else False for idx in electives_satisfied]
         if all(count == 0 for count in req_counts):
-                break
+            break
         if len(electives_satisfied) == 0 or all(empty_origins): # if the elective satisfies nothing (??) or all of its origins are empty, ignore it
             continue
         if len(electives_satisfied) == 1 and req_counts[electives_satisfied[0]] > 0: # if it has one open origin and that origin still has classes remaining
@@ -135,8 +135,77 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
                 chosen_courses[open_slots[min_index]].append(course_name)
                 req_counts[open_slots[min_index]]-=1
                 total_impact += impact
-    return (chosen_courses, total_impact) # TODO total impact caluclation
+    return (chosen_courses, total_impact)
 
+def choose_courses_max(organized_impacts: List[tuple[float,str,List[int]]],reqs: List[tuple[int, List[str]]]):
+    req_counts = [req[0] for req in reqs] # flat list of ints - each is the remaining number of courses to choose for that list (corresponding by index, so req_counts[i] is the remaining # of courses for req[i])
+    chosen_courses = [[] for req in reqs] # the final choices of courses. chosen_courses[i] is a list of courses chosen to match reqs[i]
+    total_impact = 0
+    for impact_tup in organized_impacts:
+        impact, course_name, electives_satisfied = impact_tup
+        empty_origins = [True if req_counts[idx] == 0 else False for idx in electives_satisfied]
+        if all(count == 0 for count in req_counts): # if we've satisfied all the requirements
+            break
+        if len(electives_satisfied) == 0 or all(empty_origins): # if the elective satisfied nothing or all of its origins are empty ignore it
+            continue
+        if len(electives_satisfied) == 1 and req_counts[electives_satisfied[0]] > 0: # if it has one open origin and that origin still has classes remaining
+            chosen_courses[electives_satisfied[0]].append(course_name)
+            req_counts[electives_satisfied[0]] -= 1
+            req_counts[electives_satisfied[0]]-=1
+            total_impact += impact
+        open_slots = remaining_origins(req_counts, electives_satisfied) # which indices are empty
+        if len(electives_satisfied) > 1 and len(open_slots) == 1:
+            # add it into the list corresponding to the only open slot
+            chosen_courses[open_slots[0]].append(course_name)
+            req_counts[open_slots[0]]-=1
+            total_impact += impact
+        if len(electives_satisfied) > 1 and len(open_slots) > 1: # if it has more than one non-full origin
+            # look at those origins' reminaing course counts
+            # for each such origin look at the [remaining_course_count]-th course that satisfies that origin.
+            # compare the impacts, choose the worst one.
+            look_ahead_impacts = []
+            for open_slot in open_slots:
+                look_ahead_count = req_counts[open_slot] # how many to look ahead by
+                has_my_origin = list(filter(lambda x: open_slot in x[2], organized_impacts)) # which courses have the same open slot
+                has_my_origin_future = has_my_origin[has_my_origin.index(impact_tup):] # courses down the list that ^^ (incldue current for easier list indexing)
+                down_the_line_choice = has_my_origin_future[look_ahead_count]
+                look_ahead_impacts.append(down_the_line_choice[0])
+
+            # by now we have the impact of each of the choices if that open slot isn't picked find the worst one and add that one
+            # for each value take the sum of the values in the list without it (i.e. the impact of picking that particular origin for the current course)
+            compound_look_ahead_impacts = [sum(look_ahead_impacts)-x for x in look_ahead_impacts]
+            sorted_clah = sorted(compound_look_ahead_impacts, reverse=True) # sort in descending order
+
+            # in early minimizer tests previous tiebreaking methods lead to too much recursion that behaves on the order of trying every possible combination
+            # currently using a heuristic that equates to: if the next x courses all have the same exact impact don't recurse and just pick the first one
+            # for now let's say that lookahead value x is 3*the total number of remaining requirements. 3 shoudl depend on the density of the choices, but we can edit later
+            heuristic_lookahead = 3*sum(req_counts)
+            if sorted_clah[0] == sorted_clah[1] and round(organized_impacts[organized_impacts.index(impact_tup) + heuristic_lookahead][0], 1) != round(impact, 1): #i.e. there is a tie for most bad
+                # call the function with all the decisions that you could take at this point, pick the worst and go from there
+                max_choices = [open_slots[idx] for idx,x in enumerate(compound_look_ahead_impacts) if x == max(compound_look_ahead_impacts)]
+                results = []
+                for max_choice in max_choices:
+                    # cut the input to take all the decisions already made into account
+                    results.append(choose_courses_max(organized_impacts[organized_impacts.index(impact_tup)+1:], [(req_counts[idx] -1, elecs) if idx == max_choice else (req_counts[idx], elecs) for idx, (count,elecs) in enumerate(reqs)])) # cut current one out
+                
+                # find the index of the max impact
+                # from the the largest result find the max_choice that produced it
+                max_index = max_choices[results.index(max(results, key=lambda x: x[1]))]
+                # max choices and results share indices
+                chosen_courses[max_index].append(course_name)
+                req_counts[max_index] -= 1
+                total_impact += impact
+
+                # TODO consider the same result-merging from minimizer
+            else:
+                # if there's a clear winner find the index of the winner in the original list
+                max_index = compound_look_ahead_impacts.index(max(compound_look_ahead_impacts))
+                # open_slots and compound lookahead impacts should use the same indices
+                chosen_courses[open_slots[max_index]].append(course_name)
+                req_counts[open_slots[max_index]] -= 1
+                total_impact += impact
+    return (chosen_courses, total_impact)
+ 
 def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
     
     # step 1: calculate the add impact of each course in reqs
@@ -165,4 +234,33 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     if ( round(new_metrics - base_metrics, 2) < round(estimated_total_impact, 2)):
         print("error")
 
+    return (chosen_courses, new_curr)
+
+def max_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course]) -> Curriculum:
+    # step 1 calculate the add impact of each course
+    # but first make a list from the set of all unique courses in the reqs
+    flat_reqs = []
+    for elective in reqs:
+        for course in elective[1]:
+            flat_reqs.append(course)
+    flat_reqs = sorted(list(set(flat_reqs)))
+
+    impacts = add_impact(curr, flat_reqs, catalog)
+
+    # organize the courses by impact
+    organized_impacts = organize_impacts(impacts, reqs, True)
+
+    # step 2 choose the max courses that satisfy reqs
+    (chosen_courses, estimated_total_impact) = choose_courses_max(organized_impacts, reqs)
+    
+    # step 3 add the chosen courses in
+    new_curr = add_courses(curr, chosen_courses, catalog)
+
+    # step 4 calculate stats
+    new_complexity = new_curr.complexity()[0]
+    base_complexity = curr.complexity()[0]
+
+    if (round(new_complexity - base_complexity, 2) > round(estimated_total_impact, 2)):
+        print("error")
+    
     return (chosen_courses, new_curr)
