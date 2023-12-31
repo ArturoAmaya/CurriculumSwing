@@ -407,6 +407,9 @@ electives["ECE 108"] = ["ECE 100", "ECE 102","ECE 103","ECE 107", "ECE 118", "EC
 template = ca.read_csv("./files/SY-Curriculum Plan-EC26-3.csv")
 
 (chosen_courses, new_curr) = cs.min_complexity(template, [(2, list) for list in electives.values()], catalog)
+
+(chosen_courses, new_curr) = cs.max_complexity(template, [(2, list) for list in electives.values()], catalog)
+
 #results = cs.swing_calc(template, electives, catalog)
 
 #print(results[0])
