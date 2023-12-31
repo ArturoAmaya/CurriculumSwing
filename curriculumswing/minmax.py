@@ -155,7 +155,8 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     # step 2 choose the minimum courses that satisfy reqs
     (chosen_courses, estimated_total_impact) = choose_courses_min(organized_impacts, reqs)
 
-    # step 3 add the chosen courses in, calculate stats and return TODO
-    new_curr = add_courses()
+    # step 3 add the chosen courses in
+    new_curr = add_courses(curr, chosen_courses, catalog)
 
+    # step 4 calculate stats
     return chosen_courses
