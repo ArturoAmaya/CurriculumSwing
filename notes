@@ -1,1 +1,1 @@
-So adding ECE 121B in raplecment of ECE 108 seems to give problems - CSE 30 id is incorrect.
+Double check what happens when you run the recursive section fo the minimizer - just got some results that didnt add up, i.e. I was implicitly choosing origin 0 and there was already a course in there but the recursive solution had a course in origin 0 (which would make for a merged total of three, which currently makes no sense)
