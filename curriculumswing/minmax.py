@@ -137,6 +137,7 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
                 total_impact += impact
     return (chosen_courses, total_impact) # TODO total impact caluclation
 
+
 def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
     
     # step 1: calculate the add impact of each course in reqs
@@ -165,4 +166,33 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     if ( round(new_metrics - base_metrics, 2) < round(estimated_total_impact, 2)):
         print("error")
 
+    return (chosen_courses, new_curr)
+
+def max_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course]) -> Curriculum:
+    # step 1 calculate the add impact of each course
+    # but first make a list from the set of all unique courses in the reqs
+    flat_reqs = []
+    for elective in reqs:
+        for course in elective[1]:
+            flat_reqs.append(course)
+    flat_reqs = sorted(list(set(flat_reqs)))
+
+    impacts = add_impact(curr, flat_reqs, catalog)
+
+    # organize the courses by impact
+    organized_impacts = organize_impacts(impacts, reqs, True)
+
+    # step 2 choose the max courses that satisfy reqs
+    (chosen_courses, estimated_total_impact) = choose_courses_max(organized_impacts, reqs)
+    
+    # step 3 add the chosen courses in
+    new_curr = add_courses(curr, chosen_courses, catalog)
+
+    # step 4 calculate stats
+    new_complexity = new_curr.complexity()[0]
+    base_complexity = curr.complexity()[0]
+
+    if (round(new_complexity - base_complexity, 2) > round(estimated_total_impact, 2)):
+        print("error")
+    
     return (chosen_courses, new_curr)
