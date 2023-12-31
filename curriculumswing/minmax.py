@@ -64,6 +64,16 @@ def remaining_origins(req_counts: List[int], electives_satisfied: List[int]):
             count.append(elective)
     return count
 
+def merge_results(recursion_results: tuple[List[List[str]], float], current_chosen_courses: List[List[str]], req_counts: List[int]):
+    # simply make a blank list of lists and add the contents of recursion results in and then the results of current chosen courses. then count how many in each list and adjust req_counts accordingly
+    merged_results = copy.deepcopy(current_chosen_courses)
+    for idx, elective_list in enumerate(merged_results):
+        for elective in recursion_results[0][idx]:
+            elective_list.append(elective)
+            req_counts[idx]-=1
+    return (merged_results, req_counts)
+
+
 def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], reqs: List[tuple[int, List[str]]]):
     req_counts = [req[0] for req in reqs] # flat list of ints. each one is the remaining number of courses ot choose for that list (corresponding by index so req_counts[i] is remaining # of courses for req[i])
     chosen_courses = [[] for req in reqs] # The final choices of courses chosen_courses[i] is a list of courses chosen to match reqs[i]
@@ -125,6 +135,7 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
                 req_counts[min_index] -= 1
                 total_impact += impact
 
+                (chosen_courses, req_counts) = merge_results(results[min_index], chosen_courses, req_counts)
                 # TODO: note that you've already traversed the tree you're about to traverse here.
                 # If you can merge the ongoing results with the minimum ones you just found you can 
                 # easily finish here.
