@@ -406,7 +406,7 @@ electives["ECE 108"] = ["ECE 100", "ECE 102","ECE 103","ECE 107", "ECE 118", "EC
 # NOTE that adding an elective that's not in the curriculum means we return a curriculum that = None when adding CSE 118 to the curr. That is a going to be trated as an error flag
 template = ca.read_csv("./files/SY-Curriculum Plan-EC26-3.csv")
 
-cs.min_complexity(template, [(2, list) for list in electives.values()], catalog)
+(chosen_courses, new_curr) = cs.min_complexity(template, [(2, list) for list in electives.values()], catalog)
 #results = cs.swing_calc(template, electives, catalog)
 
 #print(results[0])
