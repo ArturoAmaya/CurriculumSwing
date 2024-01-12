@@ -65,7 +65,9 @@ def remaining_origins(req_counts: List[int], electives_satisfied: List[int]):
     return count
 
 def merge_results(recursion_results: tuple[List[List[str]], float], current_chosen_courses: List[List[str]], req_counts: List[int]):
-    # simply make a blank list of lists and add the contents of recursion results in and then the results of current chosen courses. then count how many in each list and adjust req_counts accordingly
+    # simply make a blank list of lists and add the contents of recursion 
+    # results in and then the results of current chosen courses. then count 
+    # how many in each list and adjust req_counts accordingly
     merged_results = copy.deepcopy(current_chosen_courses)
     for idx, elective_list in enumerate(merged_results):
         for elective in recursion_results[0][idx]:
@@ -135,10 +137,12 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
                 req_counts[min_index] -= 1
                 total_impact += impact
 
-                (chosen_courses, req_counts) = merge_results(results[min_index], chosen_courses, req_counts)
-                # TODO: note that you've already traversed the tree you're about to traverse here.
+                (chosen_courses, req_counts) = merge_results(results[min_choices.index(min_index)], chosen_courses, req_counts)
+                # note that you've already traversed the tree you're about to traverse here.
                 # If you can merge the ongoing results with the minimum ones you just found you can 
                 # easily finish here.
+                total_impact += results[min_choices.index(min_index)][1]
+                return (chosen_courses, total_impact)
             else:
                 # if there's a clear winner find the index of the winner in the original list
                 min_index = compound_look_ahead_impacts.index(min(compound_look_ahead_impacts))
