@@ -4,6 +4,7 @@ import curriculumswing as cs
 import curricularanalytics as ca
 from curricularanalytics import Course
 from typing import List, OrderedDict
+import random
 
 ########################################################
 # CATALOG section
@@ -166,8 +167,8 @@ catalog = add_course("ECE 124", 4.0, catalog, ["ECE 121B", "ECE 125A"])
 
 catalog = add_course("ECE 125B", 4.0, catalog, ["ECE 125A"])
 catalog = add_course("ECE 128A", 4.0, catalog, [])
-catalog = add_course("ECE 128B", 4.0, catalog, [])
-catalog = add_course("ECE 128C", 4.0, catalog, [])
+catalog = add_course("ECE 128B", 4.0, catalog, ["ECE 35", "ECE 128A"])
+catalog = add_course("ECE 128C", 4.0, catalog, [ "ECE 128B"])
 catalog = add_course("ECE 129", 4.0, catalog, [])
 catalog = add_course("ECE 134", 4.0, catalog, ["PHYS 2C", "PHYS 2D"])
 catalog = add_course("ECE 135A", 4.0, catalog, ["ECE 103"])
@@ -406,10 +407,11 @@ electives["ECE 108"] = ["ECE 100", "ECE 102","ECE 103","ECE 107", "ECE 118", "EC
 # NOTE that adding an elective that's not in the curriculum means we return a curriculum that = None when adding CSE 118 to the curr. That is a going to be trated as an error flag
 template = ca.read_csv("./files/SY-Curriculum Plan-EC26-3.csv")
 
-(chosen_courses, new_curr) = cs.min_complexity(template, [(2, list) for list in electives.values()], catalog)
+(chosen_courses, new_curr) = cs.min_complexity(template, [(1, list) for list in electives.values()], catalog)
 
-(chosen_courses, new_curr) = cs.max_complexity(template, [(2, list) for list in electives.values()], catalog)
+(chosen_courses, new_curr) = cs.max_complexity(template, [(1, list) for list in electives.values()], catalog)
 
+print(chosen_courses)
 #results = cs.swing_calc(template, electives, catalog)
 
 #print(results[0])
