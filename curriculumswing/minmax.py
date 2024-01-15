@@ -5,6 +5,29 @@ import copy
 from collections import OrderedDict
 import random
 
+def add_course_prereqs_to_choice(course: Course, catalog: List[Course], reqs: List[tuple[int, List[str]]], req_counts: List[int], chosen_courses: List[List[str]], organized_impacts, curr:Curriculum):
+    # loop through the prerequisites
+    prerequisites = [catalog[[c.id for c in catalog].index(p)] for p in course.requisites]
+    curr_course_list = [c.name for c in curr.courses]
+    prerequisites = list(filter(lambda x: x.name not in curr_course_list, prerequisites))
+    for preq in prerequisites:
+        # add in the prereqs, recursively
+
+        # find the impact tuple with its allowed slots
+        tup = [t for t in organized_impacts if t[1] == course.name][0] # list comp is easy but there should only be one such tuple
+        # select the first open slot and put it in there
+        open_slot = None
+        try:
+            open_slot = next(i for i,v in enumerate(req_counts) if (v > 0 and i in tup[2]))
+            chosen_courses[open_slot].append(preq.name)
+            req_counts[open_slot] -= 1
+        except:
+            pass # in this case, we're tanking the prereq - it satisfies nothing by itself but we need it for the course we're adding
+        # recurse down its prereqs
+        if preq.requisites:
+            (chosen_courses, req_counts)= add_course_prereqs_to_choice(preq, catalog, reqs, req_counts, chosen_courses, organized_impacts, curr)
+    return chosen_courses, req_counts
+
 def add_course(curr: Curriculum, course_name:str, catalog:List[Course])->Curriculum:
     
     # find the course in question
@@ -30,7 +53,8 @@ def add_courses(curr:Curriculum, courses:List[List[str]], catalog:List[Course])-
     new_curr = copy.deepcopy(curr)
     for elective_list in courses:
         for course in elective_list:
-            new_curr = add_course(new_curr, course, catalog)
+            if course not in [c.name for c in new_curr.courses]: # only add in if it's not there already
+                new_curr = add_course(new_curr, course, catalog)
     return new_curr
 
 def add_impact(curr:Curriculum, courses: List[str], catalog:List[Course])->List[tuple[float, str]]:
@@ -152,7 +176,7 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
                 total_impact += impact
     return (chosen_courses, total_impact)
 
-def choose_courses_max(organized_impacts: List[tuple[float,str,List[int]]],reqs: List[tuple[int, List[str]]]):
+def choose_courses_max(organized_impacts: List[tuple[float,str,List[int]]],reqs: List[tuple[int, List[str]]], catalog: List[Course], curriculum: Curriculum):
     req_counts = [req[0] for req in reqs] # flat list of ints - each is the remaining number of courses to choose for that list (corresponding by index, so req_counts[i] is the remaining # of courses for req[i])
     chosen_courses = [[] for req in reqs] # the final choices of courses. chosen_courses[i] is a list of courses chosen to match reqs[i]
     total_impact = 0
@@ -166,7 +190,6 @@ def choose_courses_max(organized_impacts: List[tuple[float,str,List[int]]],reqs:
         if len(electives_satisfied) == 1 and req_counts[electives_satisfied[0]] > 0: # if it has one open origin and that origin still has classes remaining
             chosen_courses[electives_satisfied[0]].append(course_name)
             req_counts[electives_satisfied[0]] -= 1
-            req_counts[electives_satisfied[0]]-=1
             total_impact += impact
         open_slots = remaining_origins(req_counts, electives_satisfied) # which indices are empty
         if len(electives_satisfied) > 1 and len(open_slots) == 1:
@@ -193,15 +216,16 @@ def choose_courses_max(organized_impacts: List[tuple[float,str,List[int]]],reqs:
 
             # in early minimizer tests previous tiebreaking methods lead to too much recursion that behaves on the order of trying every possible combination
             # currently using a heuristic that equates to: if the next x courses all have the same exact impact don't recurse and just pick the first one
-            # for now let's say that lookahead value x is 3*the total number of remaining requirements. 3 shoudl depend on the density of the choices, but we can edit later
-            heuristic_lookahead = 3*sum(req_counts)
-            if sorted_clah[0] == sorted_clah[1] and round(organized_impacts[organized_impacts.index(impact_tup) + heuristic_lookahead][0], 1) != round(impact, 1): #i.e. there is a tie for most bad
+            # for now let's say that lookahead value x is 2*the total number of remaining requirements. 3 shoudl depend on the density of the choices, but we can edit later
+            heuristic_lookahead = 2*sum(req_counts)
+            flag = True # for testing reasons
+            if flag and sorted_clah[0] == sorted_clah[1] and round(organized_impacts[organized_impacts.index(impact_tup) + heuristic_lookahead][0], 1) != round(impact, 1): #i.e. there is a tie for most bad
                 # call the function with all the decisions that you could take at this point, pick the worst and go from there
                 max_choices = [open_slots[idx] for idx,x in enumerate(compound_look_ahead_impacts) if x == max(compound_look_ahead_impacts)]
                 results = []
                 for max_choice in max_choices:
                     # cut the input to take all the decisions already made into account
-                    results.append(choose_courses_max(organized_impacts[organized_impacts.index(impact_tup)+1:], [(req_counts[idx] -1, elecs) if idx == max_choice else (req_counts[idx], elecs) for idx, (count,elecs) in enumerate(reqs)])) # cut current one out
+                    results.append(choose_courses_max(organized_impacts[organized_impacts.index(impact_tup)+1:], [(req_counts[idx] -1, elecs) if idx == max_choice else (req_counts[idx], elecs) for idx, (count,elecs) in enumerate(reqs)], catalog, curriculum)) # cut current one out
                 
                 # find the index of the max impact
                 # from the the largest result find the max_choice that produced it
@@ -211,7 +235,12 @@ def choose_courses_max(organized_impacts: List[tuple[float,str,List[int]]],reqs:
                 req_counts[max_index] -= 1
                 total_impact += impact
 
-                # TODO consider the same result-merging from minimizer
+                (chosen_courses, req_counts) = merge_results(results[max_choices.index(max_index)], chosen_courses, req_counts)
+
+                total_impact += results[max_choices.index(max_index)][1]
+
+                # TODO add in the prerequisites!
+                return (chosen_courses, total_impact)
             else:
                 # if there's a clear winner find the index of the winner in the original list
                 max_index = compound_look_ahead_impacts.index(max(compound_look_ahead_impacts))
@@ -219,6 +248,10 @@ def choose_courses_max(organized_impacts: List[tuple[float,str,List[int]]],reqs:
                 chosen_courses[open_slots[max_index]].append(course_name)
                 req_counts[open_slots[max_index]] -= 1
                 total_impact += impact
+        # TODO: add in the prerequisites
+        # check if it has any prereqs
+        catalog_course = catalog[[c.name for c in catalog].index(course_name)]
+        (chosen_courses, req_counts) = add_course_prereqs_to_choice(catalog_course, catalog, reqs, req_counts, chosen_courses, organized_impacts, curriculum)
     return (chosen_courses, total_impact)
  
 def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
@@ -266,7 +299,7 @@ def max_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     organized_impacts = organize_impacts(impacts, reqs, True)
 
     # step 2 choose the max courses that satisfy reqs
-    (chosen_courses, estimated_total_impact) = choose_courses_max(organized_impacts, reqs)
+    (chosen_courses, estimated_total_impact) = choose_courses_max(organized_impacts, reqs, catalog, curr)
     
     # step 3 add the chosen courses in
     new_curr = add_courses(curr, chosen_courses, catalog)
