@@ -21,7 +21,7 @@ def add_course(name:str, units:float, catalog:List[Course], prereq_names:List[st
         c.add_requisite(course_find(preq, catalog), "pre")
     catalog.append(c)
     return catalog
-# make the EC26 catalog
+
 
 # MATH courses
 c1 = Course("MATH 20A", 4.0)
@@ -389,30 +389,133 @@ catalog = add_course("CENG 15", 4.0, catalog, [])
 
 # NOTE: This does NOT include the extra non-CSE/ECE electives that are available to a EC26 major
 
+upper_div_eng = ["ECE 100", "ECE 101", "ECE 102", "ECE 103", "ECE 107", 
+                 "ECE 109", "ECE 115", "ECE 118", "ECE 121A",
+                 "ECE 121B", "ECE 123", "ECE 125A", "ECE 124", "ECE 125B", 
+                 "ECE 128A", "ECE 128B", "ECE 128C",
+                 "ECE 129", "ECE 134", "ECE 135A", "ECE 135B", "ECE 136L", 
+                 "ECE 138L", "ECE 139", "ECE 140A",
+                 "ECE 140B", "ECE 141A", "ECE 141B", "ECE 143", "ECE 144", 
+                 "ECE 145AL", "ECE 145BL", "ECE 145CL", "ECE 148",
+                 "ECE 150", "ECE 153", "ECE 155", "ECE 156", "ECE 158A",
+                 "ECE 158B", "ECE 159", "ECE 161A", "ECE 157A", "ECE 157B", 
+                 "ECE 161B", "ECE 161C", "ECE 163", "ECE 164", "ECE 165",
+                 "ECE 166", "ECE 171A", "ECE 171B", "ECE 172A", "ECE 174", "ECE 175A",
+                 "ECE 175B", "ECE 176", "ECE 180", "ECE 181", "ECE 182", "ECE 183",
+                 "ECE 185", "ECE 187", "ECE 188", "ECE 189", "ECE 190", "ECE 191",
+                 "ECE 193H", "ECE 194", "ECE 196", "ECE 197", "ECE 198", "ECE 199",
+                 "CSE 100", "CSE 101", "CSE 103", "CSE 105", "CSE 106","CSE 107",
+                 "CSE 109", "CSE 110", "CSE 112", "CSE 120", "CSE 123", "CSE 124", 
+                 "CSE 125", "CSE 127", "CSE 130", "CSE 131", "CSE 132A", "CSE 132B",
+                 "CSE 132C", "CSE 134B", "CSE 135", "CSE 136", "CSE 140", "ECE 108",
+                 "ECE 111", "CSE 140L", "CSE 141", "CSE 141L", "CSE 142", "CSE 142L",
+                 "CSE 143", "CSE 145", "CSE 148", "CSE 150A", "CSE 150B", "CSE 151A",
+                 "CSE 151B", "CSE 152A", "CSE 152B", "CSE 156", "CSE 158", "CSE 160",
+                 "CSE 167", "CSE 163", "CSE 165", "CSE 166", "CSE 168", "CSE 169", "CSE 170",
+                 "CSE 175", "CSE 176A", "CSE 176E", "CSE 180", "CSE 190", "CSE 192", "CSE 193",
+                 "CSE 194", "CSE 197", "CSE 198", "CSE 199", "CSE 199H"]
 
-#########################################################
-# Electives SECTION
-# generate the electives dict
+template = ca.read_csv("./files/SY-Curriculum Plan-EC27.csv")
 
-electives = OrderedDict()
-electives["CSE LD ELECTIVE"] = list(set(["CSE 3", "CSE 4GS", "CSE 6GS", "CSE 8A", "CSE 42", "CSE 86", "CSE 90", "CSE 91", "CSE 95", "CSE 99", "CSE 180", "MAE 8", "COGS 9", "COGS 10", "COGS 18", "ECE 5", "ECE 15", "NANO 15", "CENG 15", "CSE 86", "CSE 90", "CSE 91", "CSE 95", "CSE 99"])) # MAE 9 DNE # removed CSE 80
-electives["CSE / ECE ELECTIVE 1"] = ["ECE 100", "ECE 102","ECE 103","ECE 107", "ECE 118", "ECE 121A", "ECE 121B", "ECE 123", "ECE 124", "ECE 125A", "ECE 125B", "ECE 128A", "ECE 128B", "ECE 128C", "ECE 129", "ECE 134", "ECE 135A", "ECE 135B", "ECE 136L", "ECE 138L", "ECE 139", "ECE 140A", "ECE 140B", "ECE 141A", "ECE 141B", "ECE 143", "ECE 144", "ECE 145AL", "ECE 145BL", "ECE 145CL", "ECE 148", "ECE 150", "ECE 153", "ECE 155", "ECE 156", "ECE 157A", "ECE 157B", "ECE 158A", "ECE 158B", "ECE 159", "ECE 161A", "ECE 161B", "ECE 161C", "ECE 163", "ECE 164", "ECE 165", "ECE 166", "ECE 171A", "ECE 171B", "ECE 172A", "ECE 174", "ECE 175A", "ECE 175B", "ECE 176", "ECE 180", "ECE 181", "ECE 182", "ECE 183", "ECE 184", "ECE 185", "ECE 187", "ECE 188", "ECE 189", "ECE 190", "ECE 191", "ECE 193H", "ECE 194", "ECE 196", "ECE 197", "ECE 198", "ECE 199", "CSE 103", "CSE 105", "CSE 106", "CSE 107", "CSE 109", "CSE 112", "CSE 123", "CSE 124", "CSE 125", "CSE 127", "CSE 130", "CSE 131", "CSE 132A", "CSE 132B", "CSE 132C", "CSE 134B", "CSE 135", "CSE 136", "CSE 142", "CSE 142L", "CSE 143", "CSE 145", "CSE 148", "CSE 150A", "CSE 150B", "CSE 151A", "CSE 151B", "CSE 152A", "CSE 152B", "CSE 156", "CSE 158", "CSE 160", "CSE 163", "CSE 165", "CSE 166", "CSE 167", "CSE 168", "CSE 169", "CSE 170", "CSE 175", "CSE 176A", "CSE 176E", "CSE 180", "CSE 190", "CSE 192", "CSE 193", "CSE 194", "CSE 197", "CSE 197C", "CSE 198", "CSE 199", "CSE 199H" ] # NO 108 CUZ THAT GONE
-electives["CSE / ECE ELECTIVE 2"] = ["ECE 100", "ECE 102","ECE 103","ECE 107", "ECE 118", "ECE 121A", "ECE 121B", "ECE 123", "ECE 124", "ECE 125A", "ECE 125B", "ECE 128A", "ECE 128B", "ECE 128C", "ECE 129", "ECE 134", "ECE 135A", "ECE 135B", "ECE 136L", "ECE 138L", "ECE 139", "ECE 140A", "ECE 140B", "ECE 141A", "ECE 141B", "ECE 143", "ECE 144", "ECE 145AL", "ECE 145BL", "ECE 145CL", "ECE 148", "ECE 150", "ECE 153", "ECE 155", "ECE 156", "ECE 157A", "ECE 157B", "ECE 158A", "ECE 158B", "ECE 159", "ECE 161A", "ECE 161B", "ECE 161C", "ECE 163", "ECE 164", "ECE 165", "ECE 166", "ECE 171A", "ECE 171B", "ECE 172A", "ECE 174", "ECE 175A", "ECE 175B", "ECE 176", "ECE 180", "ECE 181", "ECE 182", "ECE 183", "ECE 184", "ECE 185", "ECE 187", "ECE 188", "ECE 189", "ECE 190", "ECE 191", "ECE 193H", "ECE 194", "ECE 196", "ECE 197", "ECE 198", "ECE 199", "CSE 103", "CSE 105", "CSE 106", "CSE 107", "CSE 109", "CSE 112", "CSE 123", "CSE 124", "CSE 125", "CSE 127", "CSE 130", "CSE 131", "CSE 132A", "CSE 132B", "CSE 132C", "CSE 134B", "CSE 135", "CSE 136", "CSE 142", "CSE 142L", "CSE 143", "CSE 145", "CSE 148", "CSE 150A", "CSE 150B", "CSE 151A", "CSE 151B", "CSE 152A", "CSE 152B", "CSE 156", "CSE 158", "CSE 160", "CSE 163", "CSE 165", "CSE 166", "CSE 167", "CSE 168", "CSE 169", "CSE 170", "CSE 175", "CSE 176A", "CSE 176E", "CSE 180", "CSE 190", "CSE 192", "CSE 193", "CSE 194", "CSE 197", "CSE 197C", "CSE 198", "CSE 199", "CSE 199H" ] # NO 108 CUZ THAT GONE
-electives["CSE / ECE ELECTIVE 3"] = ["ECE 100", "ECE 102","ECE 103","ECE 107", "ECE 118", "ECE 121A", "ECE 121B", "ECE 123", "ECE 124", "ECE 125A", "ECE 125B", "ECE 128A", "ECE 128B", "ECE 128C", "ECE 129", "ECE 134", "ECE 135A", "ECE 135B", "ECE 136L", "ECE 138L", "ECE 139", "ECE 140A", "ECE 140B", "ECE 141A", "ECE 141B", "ECE 143", "ECE 144", "ECE 145AL", "ECE 145BL", "ECE 145CL", "ECE 148", "ECE 150", "ECE 153", "ECE 155", "ECE 156", "ECE 157A", "ECE 157B", "ECE 158A", "ECE 158B", "ECE 159", "ECE 161A", "ECE 161B", "ECE 161C", "ECE 163", "ECE 164", "ECE 165", "ECE 166", "ECE 171A", "ECE 171B", "ECE 172A", "ECE 174", "ECE 175A", "ECE 175B", "ECE 176", "ECE 180", "ECE 181", "ECE 182", "ECE 183", "ECE 184", "ECE 185", "ECE 187", "ECE 188", "ECE 189", "ECE 190", "ECE 191", "ECE 193H", "ECE 194", "ECE 196", "ECE 197", "ECE 198", "ECE 199", "CSE 103", "CSE 105", "CSE 106", "CSE 107", "CSE 109", "CSE 112", "CSE 123", "CSE 124", "CSE 125", "CSE 127", "CSE 130", "CSE 131", "CSE 132A", "CSE 132B", "CSE 132C", "CSE 134B", "CSE 135", "CSE 136", "CSE 142", "CSE 142L", "CSE 143", "CSE 145", "CSE 148", "CSE 150A", "CSE 150B", "CSE 151A", "CSE 151B", "CSE 152A", "CSE 152B", "CSE 156", "CSE 158", "CSE 160", "CSE 163", "CSE 165", "CSE 166", "CSE 167", "CSE 168", "CSE 169", "CSE 170", "CSE 175", "CSE 176A", "CSE 176E", "CSE 180", "CSE 190", "CSE 192", "CSE 193", "CSE 194", "CSE 197", "CSE 197C", "CSE 198", "CSE 199", "CSE 199H" ] # NO 108 CUZ THAT GONE
-electives["CSE / ECE ELECTIVE 4"] = ["ECE 100", "ECE 102","ECE 103","ECE 107", "ECE 118", "ECE 121A", "ECE 121B", "ECE 123", "ECE 124", "ECE 125A", "ECE 125B", "ECE 128A", "ECE 128B", "ECE 128C", "ECE 129", "ECE 134", "ECE 135A", "ECE 135B", "ECE 136L", "ECE 138L", "ECE 139", "ECE 140A", "ECE 140B", "ECE 141A", "ECE 141B", "ECE 143", "ECE 144", "ECE 145AL", "ECE 145BL", "ECE 145CL", "ECE 148", "ECE 150", "ECE 153", "ECE 155", "ECE 156", "ECE 157A", "ECE 157B", "ECE 158A", "ECE 158B", "ECE 159", "ECE 161A", "ECE 161B", "ECE 161C", "ECE 163", "ECE 164", "ECE 165", "ECE 166", "ECE 171A", "ECE 171B", "ECE 172A", "ECE 174", "ECE 175A", "ECE 175B", "ECE 176", "ECE 180", "ECE 181", "ECE 182", "ECE 183", "ECE 184", "ECE 185", "ECE 187", "ECE 188", "ECE 189", "ECE 190", "ECE 191", "ECE 193H", "ECE 194", "ECE 196", "ECE 197", "ECE 198", "ECE 199", "CSE 103", "CSE 105", "CSE 106", "CSE 107", "CSE 109", "CSE 112", "CSE 123", "CSE 124", "CSE 125", "CSE 127", "CSE 130", "CSE 131", "CSE 132A", "CSE 132B", "CSE 132C", "CSE 134B", "CSE 135", "CSE 136", "CSE 142", "CSE 142L", "CSE 143", "CSE 145", "CSE 148", "CSE 150A", "CSE 150B", "CSE 151A", "CSE 151B", "CSE 152A", "CSE 152B", "CSE 156", "CSE 158", "CSE 160", "CSE 163", "CSE 165", "CSE 166", "CSE 167", "CSE 168", "CSE 169", "CSE 170", "CSE 175", "CSE 176A", "CSE 176E", "CSE 180", "CSE 190", "CSE 192", "CSE 193", "CSE 194", "CSE 197", "CSE 197C", "CSE 198", "CSE 199", "CSE 199H" ] # NO 108 CUZ THAT GONE
-electives["CSE / ECE ELECTIVE 5"] = ["ECE 100", "ECE 102","ECE 103","ECE 107", "ECE 118", "ECE 121A", "ECE 121B", "ECE 123", "ECE 124", "ECE 125A", "ECE 125B", "ECE 128A", "ECE 128B", "ECE 128C", "ECE 129", "ECE 134", "ECE 135A", "ECE 135B", "ECE 136L", "ECE 138L", "ECE 139", "ECE 140A", "ECE 140B", "ECE 141A", "ECE 141B", "ECE 143", "ECE 144", "ECE 145AL", "ECE 145BL", "ECE 145CL", "ECE 148", "ECE 150", "ECE 153", "ECE 155", "ECE 156", "ECE 157A", "ECE 157B", "ECE 158A", "ECE 158B", "ECE 159", "ECE 161A", "ECE 161B", "ECE 161C", "ECE 163", "ECE 164", "ECE 165", "ECE 166", "ECE 171A", "ECE 171B", "ECE 172A", "ECE 174", "ECE 175A", "ECE 175B", "ECE 176", "ECE 180", "ECE 181", "ECE 182", "ECE 183", "ECE 184", "ECE 185", "ECE 187", "ECE 188", "ECE 189", "ECE 190", "ECE 191", "ECE 193H", "ECE 194", "ECE 196", "ECE 197", "ECE 198", "ECE 199", "CSE 103", "CSE 105", "CSE 106", "CSE 107", "CSE 109", "CSE 112", "CSE 123", "CSE 124", "CSE 125", "CSE 127", "CSE 130", "CSE 131", "CSE 132A", "CSE 132B", "CSE 132C", "CSE 134B", "CSE 135", "CSE 136", "CSE 142", "CSE 142L", "CSE 143", "CSE 145", "CSE 148", "CSE 150A", "CSE 150B", "CSE 151A", "CSE 151B", "CSE 152A", "CSE 152B", "CSE 156", "CSE 158", "CSE 160", "CSE 163", "CSE 165", "CSE 166", "CSE 167", "CSE 168", "CSE 169", "CSE 170", "CSE 175", "CSE 176A", "CSE 176E", "CSE 180", "CSE 190", "CSE 192", "CSE 193", "CSE 194", "CSE 197", "CSE 197C", "CSE 198", "CSE 199", "CSE 199H" ] # NO 108 CUZ THAT GONE
-electives["CSE TECHNICAL ELECTIVE"] = ["ECE 100", "ECE 102","ECE 103","ECE 107", "ECE 118", "ECE 121A", "ECE 121B", "ECE 123", "ECE 124", "ECE 125A", "ECE 125B", "ECE 128A", "ECE 128B", "ECE 128C", "ECE 129", "ECE 134", "ECE 135A", "ECE 135B", "ECE 136L", "ECE 138L", "ECE 139", "ECE 140A", "ECE 140B", "ECE 141A", "ECE 141B", "ECE 143", "ECE 144", "ECE 145AL", "ECE 145BL", "ECE 145CL", "ECE 148", "ECE 150", "ECE 153", "ECE 155", "ECE 156", "ECE 157A", "ECE 157B", "ECE 158A", "ECE 158B", "ECE 159", "ECE 161A", "ECE 161B", "ECE 161C", "ECE 163", "ECE 164", "ECE 165", "ECE 166", "ECE 171A", "ECE 171B", "ECE 172A", "ECE 174", "ECE 175A", "ECE 175B", "ECE 176", "ECE 180", "ECE 181", "ECE 182", "ECE 183", "ECE 184", "ECE 185", "ECE 187", "ECE 188", "ECE 189", "ECE 190", "ECE 191", "ECE 193H", "ECE 194", "ECE 196", "ECE 197", "ECE 198", "ECE 199", "CSE 103", "CSE 105", "CSE 106", "CSE 107", "CSE 109", "CSE 112", "CSE 123", "CSE 124", "CSE 125", "CSE 127", "CSE 130", "CSE 131", "CSE 132A", "CSE 132B", "CSE 132C", "CSE 134B", "CSE 135", "CSE 136", "CSE 142", "CSE 142L", "CSE 143", "CSE 145", "CSE 148", "CSE 150A", "CSE 150B", "CSE 151A", "CSE 151B", "CSE 152A", "CSE 152B", "CSE 156", "CSE 158", "CSE 160", "CSE 163", "CSE 165", "CSE 166", "CSE 167", "CSE 168", "CSE 169", "CSE 170", "CSE 175", "CSE 176A", "CSE 176E", "CSE 180", "CSE 190", "CSE 192", "CSE 193", "CSE 194", "CSE 197", "CSE 197C", "CSE 198", "CSE 199", "CSE 199H" ] # NO 108 CUZ THAT GONE
-electives["ECE 108"] = ["ECE 100", "ECE 102","ECE 103","ECE 107", "ECE 118", "ECE 121A", "ECE 121B", "ECE 123", "ECE 124", "ECE 125A", "ECE 125B", "ECE 128A", "ECE 128B", "ECE 128C", "ECE 129", "ECE 134", "ECE 135A", "ECE 135B", "ECE 136L", "ECE 138L", "ECE 139", "ECE 140A", "ECE 140B", "ECE 141A", "ECE 141B", "ECE 143", "ECE 144", "ECE 145AL", "ECE 145BL", "ECE 145CL", "ECE 148", "ECE 150", "ECE 153", "ECE 155", "ECE 156", "ECE 157A", "ECE 157B", "ECE 158A", "ECE 158B", "ECE 159", "ECE 161A", "ECE 161B", "ECE 161C", "ECE 163", "ECE 164", "ECE 165", "ECE 166", "ECE 171A", "ECE 171B", "ECE 172A", "ECE 174", "ECE 175A", "ECE 175B", "ECE 176", "ECE 180", "ECE 181", "ECE 182", "ECE 183", "ECE 184", "ECE 185", "ECE 187", "ECE 188", "ECE 189", "ECE 190", "ECE 191", "ECE 193H", "ECE 194", "ECE 196", "ECE 197", "ECE 198", "ECE 199", "CSE 103", "CSE 105", "CSE 106", "CSE 107", "CSE 109", "CSE 112", "CSE 123", "CSE 124", "CSE 125", "CSE 127", "CSE 130", "CSE 131", "CSE 132A", "CSE 132B", "CSE 132C", "CSE 134B", "CSE 135", "CSE 136", "CSE 142", "CSE 142L", "CSE 143", "CSE 145", "CSE 148", "CSE 150A", "CSE 150B", "CSE 151A", "CSE 151B", "CSE 152A", "CSE 152B", "CSE 156", "CSE 158", "CSE 160", "CSE 163", "CSE 165", "CSE 166", "CSE 167", "CSE 168", "CSE 169", "CSE 170", "CSE 175", "CSE 176A", "CSE 176E", "CSE 180", "CSE 190", "CSE 192", "CSE 193", "CSE 194", "CSE 197", "CSE 197C", "CSE 198", "CSE 199", "CSE 199H" ] # NO 108 CUZ THAT GONE
+# design the elective sequences
+# Communication Systems
+comm_electives = [(1, ["ECE 100"]), (1, ["ECE 101"]), (1, ["ECE 102"]), (1, ["ECE 107"]), (1, ["ECE 109"]), (1, ["ECE 153"]), (1, ["ECE 155"]), (1, ["ECE 157A"]), (1, ["ECE 158A"]), (1, ["ECE 159"])]
+comm_electives.append((4, upper_div_eng))
+comm_electives.append((2, upper_div_eng))
+comm_electives.append((1, ["ECE 111", "ECE 115", "ECE 140B", "ECE 190", "ECE 191"]))
 
-# NOTE that adding an elective that's not in the curriculum means we return a curriculum that = None when adding CSE 118 to the curr. That is a going to be trated as an error flag
-template = ca.read_csv("./files/SY-Curriculum Plan-EC26-3.csv")
+(comm_courses_min, comm_curr_min) = cs.min_complexity(template, comm_electives, catalog)
+(comm_courses_max, comm_curr_max) = cs.max_complexity(template, comm_electives, catalog)
 
-(chosen_courses, new_curr) = cs.min_complexity(template, [(1, list) for list in electives.values()], catalog)
 
-(chosen_courses, new_curr) = cs.max_complexity(template, [(1, list) for list in electives.values()], catalog)
+# Computer System Design
+comp_design = [(1, ["ECE 100"]), (1, ["ECE 101"]), (1, ["ECE 109"])]
+comp_design.append((5, ["ECE 102", "ECE 103", "ECE 111", "ECE 140A",
+                        "ECE 140B", "ECE 141A", "ECE 141B",
+                        "ECE 143", "ECE 158A", "ECE 158B", "ECE 165"]))
+comp_design.append((5, upper_div_eng))
+comp_design.append((2, upper_div_eng))
+comp_design.append((1, ["ECE 111", "ECE 115", "ECE 140B", "ECE 190", "ECE 191"]))
 
-(a,b) = cs.dummy_max(template, [(1, list) for list in electives.values()], catalog)
-print(chosen_courses)
-#results = cs.swing_calc(template, electives, catalog)
+(comp_design_min, comp_design_curr_min) = cs.min_complexity(template, comp_design, catalog)
+(comp_design_courses_max, comp_design_curr_max) = cs.max_complexity(template, comp_design, catalog)
 
-#print(results[0])
+# Electronic Circuits and Systems
+ecs = [(1, ["ECE 100"]), (1, ["ECE 101"]), (1, ["ECE 102"]), (1, ["ECE 103"]), (1, ["ECE 107"]), (1, ["ECE 109"])]
+ecs.append((1, ["ECE 164"]))
+ecs.append((1, ["ECE 165"]))
+ecs.append((1, ["ECE 166"]))
+ecs.append((5, upper_div_eng))
+ecs.append((2, upper_div_eng))
+ecs.append((1, ["ECE 111", "ECE 115", "ECE 140B", "ECE 190", "ECE 191"]))
+
+(ecs_courses_min, ecs_curr_min) = cs.min_complexity(template, ecs, catalog)
+(ecs_courses_max, ecs_curr_max) = cs.max_complexity(template, ecs, catalog)
+
+
+# Electronics Devices and Materials
+edm = [(1, ["ECE 100"]), (1, ["ECE 101"]), (1, ["ECE 102"]), (1, ["ECE 103"]), (1, ["ECE 107"]), (1, ["ECE 109"])]
+edm.append((1, ["ECE 135A"]))
+edm.append((1, ["ECE 135B"]))
+edm.append((1, ["ECE 136L"]))
+edm.append((1, ["ECE 183"]))
+edm.append((5, upper_div_eng))
+edm.append((2, upper_div_eng))
+edm.append((1, ["ECE 111", "ECE 115", "ECE 140B", "ECE 190", "ECE 191"]))
+
+(edm_courses_min, edm_curr_min) = cs.min_complexity(template, edm, catalog)
+(edm_courses_max, edm_curr_max) = cs.max_complexity(template, edm, catalog)
+
+# Machine Learning and Controls
+mlc = [(1, ["ECE 100"]), (1, ["ECE 101"]), (1, ["ECE 107"]), (1, ["ECE 109"])]
+mlc.append((1, ["ECE 171A"]))
+mlc.append((1, ["ECE 174"]))
+mlc.append((1, ["ECE 175A"]))
+mlc.append((1, ["ECE 171B", "ECE 172A", "ECE 175B"]))
+mlc.append((6, upper_div_eng))
+mlc.append((2, upper_div_eng))
+mlc.append((1, ["ECE 111", "ECE 115", "ECE 140B", "ECE 190", "ECE 191"]))
+
+(mlc_courses_min, mlc_curr_min) = cs.min_complexity(template, mlc, catalog)
+(mlc_courses_max, mlc_curr_max) = cs.max_complexity(template, mlc, catalog)
+
+# Photonics
+photonics = [(1, ["ECE 100"]), (1, ["ECE 101"]), (1, ["ECE 103"]), (1, ["ECE 107"]), (1, ["ECE 109"])]
+photonics.append((1, ["ECE 181"]))
+photonics.append((1, ["ECE 182"]))
+photonics.append((1, ["ECE 183"]))
+photonics.append((1, ["ECE 184", "ECE 185"]))
+
+(photonics_courses_min, photonics_curr_min) = cs.min_complexity(template, photonics, catalog)
+(photonics_courses_max, photonics_curr_max) = cs.max_complexity(template, photonics, catalog)
+
+
+# Power Engineering
+pe = [(1, ["ECE 100"]), (1, ["ECE 101"]), (1, ["ECE 102"]), (1, ["ECE 103"]), (1, ["ECE 107"]), (1,["ECE 109"])]
+pe.append((1, ["ECE 121A"]))
+pe.append((1, ["ECE 121B"]))
+pe.append((1, ["ECE 125A"]))
+pe.append((1, ["ECE 128A"]))
+pe.append((1, ["ECE 125B", "ECE 128B"]))
+pe.append((3, upper_div_eng))
+pe.append((2, upper_div_eng))
+pe.append((1, ["ECE 111", "ECE 115", "ECE 140B", "ECE 190", "ECE 191"]))
+
+(pe_courses_min, pe_curr_min) = cs.min_complexity(template, pe, catalog)
+(pe_courses_max, pe_curr_max) = cs.max_complexity(template, pe, catalog)
+
+
+# Signal and Image Processing
+sip = [(1, ["ECE 100"]), (1, ["ECE 101"]), (1, ["ECE 107"]), (1, ["ECE 109"])]
+sip.append((1, ["ECE 153"]))
+sip.append((1, ["ECE 161A"]))
+sip.append((1, ["ECE 161B"]))
+sip.append((1, ["ECE 161C"]))
+sip.append((6, upper_div_eng))
+sip.append((2, upper_div_eng))
+sip.append((1, ["ECE 111", "ECE 115", "ECE 140B", "ECE 190", "ECE 191"]))
+
+(sip_courses_min, sip_curr_min) = cs.min_complexity(template, sip, catalog)
+(sip_courses_max, sip_curr_max) = cs.max_complexity(template, sip, catalog)
+
+print("hello")
