@@ -4,6 +4,7 @@ from typing import Dict, List
 import copy
 from collections import OrderedDict
 import random
+from itertools import combinations
 
 def add_course_prereqs_to_choice(course: Course, catalog: List[Course], reqs: List[tuple[int, List[str]]], req_counts: List[int], chosen_courses: List[List[str]], organized_impacts, curr:Curriculum):
     # loop through the prerequisites
@@ -17,7 +18,10 @@ def add_course_prereqs_to_choice(course: Course, catalog: List[Course], reqs: Li
         # add in the prereqs, recursively
 
         # find the impact tuple with its allowed slots
-        tup = [t for t in organized_impacts if t[1] == course.name][0] # list comp is easy but there should only be one such tuple
+        try: 
+            tup = [t for t in organized_impacts if t[1] == course.name][0] # list comp is easy but there should only be one such tuple
+        except: 
+            tup = (0, course.name, [])
         # select the first open slot and put it in there
         open_slot = None
         try:
@@ -131,52 +135,60 @@ def choose_courses_min(organized_impacts: List[tuple[float, str, List[int]]], re
             # for each such origin, look at the [remaining_course_count]-th course that satisfies that origin.
             # compare the impacts, choose the least bad one.
             look_ahead_impacts = []
+            not_done = True
             for open_slot in open_slots:
                 look_ahead_count = req_counts[open_slot] # this is how many to look ahead to
                 has_my_origin = list(filter(lambda x: open_slot in x[2], organized_impacts)) # which courses have the same open slot
                 has_my_origin_future = has_my_origin[has_my_origin.index(impact_tup):] #courses down the list that ^^ (inlcude current for easier list indexing)
+                if len(has_my_origin_future) == 0: 
+                    # there's no other ones that satisfy that choice so pick that one
+                    chosen_courses[open_slot].append(course_name)
+                    req_counts[open_slot]-=1
+                    total_impact += impact
+                    not_done == False
+                    break
                 down_the_line_choice = has_my_origin_future[look_ahead_count]
                 look_ahead_impacts.append(down_the_line_choice[0]) # TODO check if we should use only the last value or the sum of all the values. I think it's just the last one
-            
-            # ok we have the impacts of each of the choices if that open slot isn't picked. find the least-bad and add that one
-            # for each value take the sum of the values in the list without it
-            compound_look_ahead_impacts = [sum(look_ahead_impacts) - x for x in look_ahead_impacts]
-            sorted_clah = sorted(compound_look_ahead_impacts)
-            # in early tests, the tiebreaking leads to a ton of recursion that seems to behave exactly like trying all the options.
-            # let's use a heuristic along the lines of if the next x courses all have the same exact impact don't recurse and just pick the first one
-            # for now let's say the lookahead value is 3 * the total number for remaining reqs. 3 should really depend on the density of the choices, but whatever TODO
-            heuristic_lookahead = 3 * sum(req_counts)
-            #round(organized_impacts[organized_impacts.index(impact_tup) + heuristic_lookahead][0], 1) == round(impact,1):
-            if sorted_clah[0] == sorted_clah[1] and round(organized_impacts[organized_impacts.index(impact_tup) + heuristic_lookahead][0], 1) != round(impact,1): # i.e. there is a tie for least bad
-                # call the function with all the decisions that you could take at this point, pick the best and go from there
-                min_choices = [open_slots[idx] for idx, x in enumerate(compound_look_ahead_impacts) if x == min(compound_look_ahead_impacts)]
-                results = []
-                for min_choice in min_choices:
-                    # cut the input to take all the decisions
-                    results.append(choose_courses_min(organized_impacts[organized_impacts.index(impact_tup)+1:], [(req_counts[idx] - 1,elecs) if idx == min_choice else (req_counts[idx],elecs) for idx,(count, elecs) in enumerate(reqs)])) # cut me out
-                    
-                    
-                # find the index of the minimum impact
-                # from the smallest result find the min_choice that produced it
-                min_index = min_choices[results.index(min(results, key=lambda x: x[1]))]
-                # min choices and results share indices
-                chosen_courses[min_index].append(course_name)
-                req_counts[min_index] -= 1
-                total_impact += impact
+            if (not_done):
+                # ok we have the impacts of each of the choices if that open slot isn't picked. find the least-bad and add that one
+                # for each value take the sum of the values in the list without it
+                compound_look_ahead_impacts = [sum(look_ahead_impacts) - x for x in look_ahead_impacts]
+                sorted_clah = sorted(compound_look_ahead_impacts)
+                # in early tests, the tiebreaking leads to a ton of recursion that seems to behave exactly like trying all the options.
+                # let's use a heuristic along the lines of if the next x courses all have the same exact impact don't recurse and just pick the first one
+                # for now let's say the lookahead value is 3 * the total number for remaining reqs. 3 should really depend on the density of the choices, but whatever TODO
+                heuristic_lookahead = 3 * sum(req_counts)
+                #round(organized_impacts[organized_impacts.index(impact_tup) + heuristic_lookahead][0], 1) == round(impact,1):
+                if sorted_clah[0] == sorted_clah[1] and round(organized_impacts[organized_impacts.index(impact_tup) + heuristic_lookahead][0], 1) != round(impact,1): # i.e. there is a tie for least bad
+                    # call the function with all the decisions that you could take at this point, pick the best and go from there
+                    min_choices = [open_slots[idx] for idx, x in enumerate(compound_look_ahead_impacts) if x == min(compound_look_ahead_impacts)]
+                    results = []
+                    for min_choice in min_choices:
+                        # cut the input to take all the decisions
+                        results.append(choose_courses_min(organized_impacts[organized_impacts.index(impact_tup)+1:], [(req_counts[idx] - 1,elecs) if idx == min_choice else (req_counts[idx],elecs) for idx,(count, elecs) in enumerate(reqs)])) # cut me out
+                        
+                        
+                    # find the index of the minimum impact
+                    # from the smallest result find the min_choice that produced it
+                    min_index = min_choices[results.index(min(results, key=lambda x: x[1]))]
+                    # min choices and results share indices
+                    chosen_courses[min_index].append(course_name)
+                    req_counts[min_index] -= 1
+                    total_impact += impact
 
-                (chosen_courses, req_counts) = merge_results(results[min_choices.index(min_index)], chosen_courses, req_counts)
-                # note that you've already traversed the tree you're about to traverse here.
-                # If you can merge the ongoing results with the minimum ones you just found you can 
-                # easily finish here.
-                total_impact += results[min_choices.index(min_index)][1]
-                return (chosen_courses, total_impact)
-            else:
-                # if there's a clear winner find the index of the winner in the original list
-                min_index = compound_look_ahead_impacts.index(min(compound_look_ahead_impacts))
-                # open_slots and compound_look_ahead_impacts should use the same indices
-                chosen_courses[open_slots[min_index]].append(course_name)
-                req_counts[open_slots[min_index]]-=1
-                total_impact += impact
+                    (chosen_courses, req_counts) = merge_results(results[min_choices.index(min_index)], chosen_courses, req_counts)
+                    # note that you've already traversed the tree you're about to traverse here.
+                    # If you can merge the ongoing results with the minimum ones you just found you can 
+                    # easily finish here.
+                    total_impact += results[min_choices.index(min_index)][1]
+                    return (chosen_courses, total_impact)
+                else:
+                    # if there's a clear winner find the index of the winner in the original list
+                    min_index = compound_look_ahead_impacts.index(min(compound_look_ahead_impacts))
+                    # open_slots and compound_look_ahead_impacts should use the same indices
+                    chosen_courses[open_slots[min_index]].append(course_name)
+                    req_counts[open_slots[min_index]]-=1
+                    total_impact += impact
     return (chosen_courses, total_impact)
 
 def choose_courses_max(organized_impacts: List[tuple[float,str,List[int]]],reqs: List[tuple[int, List[str]]], catalog: List[Course], curriculum: Curriculum):
@@ -330,8 +342,28 @@ def max_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     
     return (chosen_courses, new_curr)
 
+def double_courses(curr):
+    ret = False
+    names = [c.name for c in curr.courses]
+    if len(set(names)) != len(names):
+        return True
+    else:
+        return False
+
 # DUMMY max choice
 def dummy_max(curr:Curriculum, reqs: List[tuple[int, List[str]]], catalog: List[Course])->Curriculum:
     # for each req, pick classes, remove them from the other lists
+    worst_impact = 0
+    worst_curr = curr
+    new_curr = curr
     for req in reqs:
-        
+        s = list(combinations(req[1], req[0]))
+        for choice in s:
+            for course in choice:
+                new_curr = add_course(curr, course, catalog)
+            (new_curr, impact) = dummy_max(new_curr, reqs[1:], catalog)
+            if impact > worst_impact and not double_courses(new_curr):
+                worst_impact = impact
+                worst_curr = new_curr
+    return (worst_curr, worst_curr.complexity()[0])
+
