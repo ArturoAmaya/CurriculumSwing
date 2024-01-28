@@ -19,7 +19,7 @@ def add_course_prereqs_to_choice(course: Course, catalog: List[Course], reqs: Li
 
         # find the impact tuple with its allowed slots
         try: 
-            tup = [t for t in organized_impacts if t[1] == course.name][0] # list comp is easy but there should only be one such tuple
+            tup = [t for t in organized_impacts if t[1] == preq.name][0] # list comp is easy but there should only be one such tuple
         except: 
             tup = (0, course.name, [])
         # select the first open slot and put it in there
@@ -309,7 +309,7 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     base_metrics = curr.complexity()[0]
 
     if ( round(new_metrics - base_metrics, 2) < round(estimated_total_impact, 2)):
-        print("error")
+        print("impact estimation error - estimated is ", round(estimated_total_impact, 2) / round(new_metrics - base_metrics, 2), " times actual")
 
     return (chosen_courses, new_curr)
 
@@ -337,9 +337,9 @@ def max_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     new_complexity = new_curr.complexity()[0]
     base_complexity = curr.complexity()[0]
 
-    if (round(new_complexity - base_complexity, 2) > round(estimated_total_impact, 2)):
-        print("error")
-    
+    if ( round(new_complexity - base_complexity, 2) > round(estimated_total_impact, 2)):
+        print("impact estimation error - estimated is ", round(estimated_total_impact, 2) / round(new_metrics - base_metrics, 2), " times actual")
+
     return (chosen_courses, new_curr)
 
 def double_courses(curr):
