@@ -338,7 +338,7 @@ def max_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     base_complexity = curr.complexity()[0]
 
     if ( round(new_complexity - base_complexity, 2) > round(estimated_total_impact, 2)):
-        print("impact estimation error - estimated is ", round(estimated_total_impact, 2) / round(new_metrics - base_metrics, 2), " times actual")
+        print("impact estimation error - estimated is ", round(estimated_total_impact, 2) / round(new_complexity - base_complexity, 2), " times actual")
 
     return (chosen_courses, new_curr)
 
