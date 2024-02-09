@@ -2,7 +2,7 @@ import sys
 sys.path.append('./')
 import curriculumswing as cs
 import curricularanalytics as ca
-from curricularanalytics import Course
+from curricularanalytics import Course, quarter
 from typing import List, OrderedDict
 import random
 
@@ -247,8 +247,23 @@ rand_u = [(5, ["BICD 100", "BIEB 174", "SIO 132", "SIO 109", "POLI 117", "ESYS 1
 
 (rand_courses_max, rand_curr_max) = cs.max_complexity(template, rand_l+rand_u, catalog)
 
-complexities = [ba_curr_max.metrics["complexity"], science_curr_max.metrics["complexity"], social_science1_curr_max.metrics["complexity"], social_science2_curr_max.metrics["complexity"], ml_curr_max.metrics["complexity"]]
+complexities_max = [ba_curr_max.metrics["complexity"], science_curr_max.metrics["complexity"], social_science1_curr_max.metrics["complexity"], social_science2_curr_max.metrics["complexity"], ml_curr_max.metrics["complexity"]]
+complexities_min = [ba_curr_min.metrics["complexity"], science_curr_min.metrics["complexity"], social_science1_curr_min.metrics["complexity"], social_science2_curr_min.metrics["complexity"], ml_curr_min.metrics["complexity"]]
 delays = [max(ba_curr_max.metrics["delay factor"][1]), max(science_curr_max.metrics["delay factor"][1]), max(social_science1_curr_max.metrics["delay factor"][1]), max(social_science2_curr_max.metrics["delay factor"][1]), max(ml_curr_max.metrics["delay factor"][1])]
 print("hello")
 
 
+# this is my manually generated bad curriculum
+bad_l = ["USP 4", "ECON 1"]
+bad_r = ["MATH 181A", "CSE 150A", "DSC 140B", "DSC 148"] # replacing econ 120a, dsc 140a, dsc 140b, dsc 148 respectively
+bad_u = ["COGS 109", "COGS 180", "MATH 152", "CSE 152A", "CSE 152B"]
+
+import copy
+dumb_list = copy.deepcopy(template.courses)
+#econ120a_index = [c.name for c in dumb_list].index("ECON 120A")
+#del dumb_list[econ120a_index]
+del dumb_list[[c.name for c in dumb_list].index("DSC 140A")]
+new_curr = ca.Curriculum("new", dumb_list, system_type=quarter)
+new_curr = cs.add_courses(new_curr, [bad_l + bad_r[0:1] + bad_u], catalog)
+new_curr.complexity()[0]
+print("hi")
