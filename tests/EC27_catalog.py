@@ -518,4 +518,7 @@ sip.append((1, ["ECE 111", "ECE 115", "ECE 140B", "ECE 190", "ECE 191"]))
 (sip_courses_min, sip_curr_min) = cs.min_complexity(template, sip, catalog)
 (sip_courses_max, sip_curr_max) = cs.max_complexity(template, sip, catalog)
 
+complexities_max = [comm_curr_max.metrics["complexity"], comp_design_curr_max.metrics["complexity"], ecs_curr_max.metrics["complexity"], edm_curr_max.metrics["complexity"], mlc_curr_max.metrics["complexity"],photonics_curr_max.metrics["complexity"],pe_curr_max.metrics["complexity"], sip_curr_max.metrics["complexity"]]
+complexities_min = [comm_curr_min.metrics["complexity"], comp_design_curr_min.metrics["complexity"], ecs_curr_min.metrics["complexity"], edm_curr_min.metrics["complexity"], mlc_curr_min.metrics["complexity"],photonics_curr_min.metrics["complexity"],pe_curr_min.metrics["complexity"], sip_curr_min.metrics["complexity"]]
+
 print("hello")
