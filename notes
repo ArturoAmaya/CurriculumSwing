@@ -1,2 +1,4 @@
 Double check what happens when you run the recursive section of the minimizer - just got some results that didnt add up, i.e. I was implicitly choosing origin 0 and there was already a course in there but the recursive solution had a course in origin 0 (which would make for a merged total of three, which currently makes no sense)
 (Solved, was using the wrong index for minimizer recursion result merging)
+
+2/2/24 - Found difference between website and local python - DS25 2023 major is 209 but 208.1999999993 on local
