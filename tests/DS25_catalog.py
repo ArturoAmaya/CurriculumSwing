@@ -128,9 +128,9 @@ catalog = add_course("DSC 180A", 4.0, catalog, ["DSC 102", "MATH 189", "DSC 148"
 catalog = add_course("DSC 180B", 4.0, catalog, ["DSC 180A"])
 catalog = add_course("DSC 190", 4.0, catalog, [])
 catalog = add_course("DSC 191", 2.0, catalog, [])
-catalog = add_course("DSC 197", 4.0, catalog, [])
-catalog = add_course("DSC 198", 4.0, catalog, [])
-catalog = add_course("DSC 199", 4.0, catalog, [])
+#catalog = add_course("DSC 197", 4.0, catalog, [])
+#catalog = add_course("DSC 198", 4.0, catalog, [])
+#catalog = add_course("DSC 199", 4.0, catalog, [])
 
 
 # ECON upper div
@@ -251,6 +251,8 @@ complexities_max = [ba_curr_max.metrics["complexity"], science_curr_max.metrics[
 complexities_min = [ba_curr_min.metrics["complexity"], science_curr_min.metrics["complexity"], social_science1_curr_min.metrics["complexity"], social_science2_curr_min.metrics["complexity"], ml_curr_min.metrics["complexity"]]
 delays = [max(ba_curr_max.metrics["delay factor"][1]), max(science_curr_max.metrics["delay factor"][1]), max(social_science1_curr_max.metrics["delay factor"][1]), max(social_science2_curr_max.metrics["delay factor"][1]), max(ml_curr_max.metrics["delay factor"][1])]
 print("hello")
+
+
 
 
 # this is my manually generated bad curriculum
