@@ -225,9 +225,9 @@ catalog = add_course("ECE 193H", 4.0, catalog, [])
 catalog = add_course("ECE 194", 4.0, catalog, [])
 
 catalog = add_course("ECE 196", 4.0, catalog, ["CSE 11"])
-catalog = add_course("ECE 197", 12.0, catalog, [])
-catalog = add_course("ECE 198", 4.0, catalog, [])
-catalog = add_course("ECE 199", 4.0, catalog, [])
+#catalog = add_course("ECE 197", 12.0, catalog, [])
+#catalog = add_course("ECE 198", 4.0, catalog, [])
+#catalog = add_course("ECE 199", 4.0, catalog, [])
 
 c26 = Course("CSE 100", 4.0)
 c26.add_requisite(c17, "pre") # CSE 21
@@ -372,11 +372,11 @@ catalog = add_course("CSE 193", 4.0, catalog, [])
 catalog = add_course("CSE 194", 1.0, catalog, ["CSE 12"]) # or a college writing course but screw that for now])
 
 # CSE 195 doesn't count
-catalog = add_course("CSE 197", 4.0, catalog, [])
-catalog = add_course("CSE 197C" ,12.0, catalog, [])
-catalog = add_course("CSE 198", 4.0, catalog, [])
-catalog = add_course("CSE 199", 4.0, catalog, [])
-catalog = add_course("CSE 199H", 4.0, catalog, [])
+#catalog = add_course("CSE 197", 4.0, catalog, [])
+#catalog = add_course("CSE 197C" ,12.0, catalog, [])
+#catalog = add_course("CSE 198", 4.0, catalog, [])
+#catalog = add_course("CSE 199", 4.0, catalog, [])
+#catalog = add_course("CSE 199H", 4.0, catalog, [])
 
 # LDE
 catalog = add_course("MAE 8", 4.0, catalog, ["MATH 20A", "MATH 20B"])
@@ -403,7 +403,7 @@ upper_div_eng = ["ECE 100", "ECE 101", "ECE 102", "ECE 103", "ECE 107",
                  "ECE 166", "ECE 171A", "ECE 171B", "ECE 172A", "ECE 174", "ECE 175A",
                  "ECE 175B", "ECE 176", "ECE 180", "ECE 181", "ECE 182", "ECE 183",
                  "ECE 185", "ECE 187", "ECE 188", "ECE 189", "ECE 190", "ECE 191",
-                 "ECE 193H", "ECE 194", "ECE 196", "ECE 197", "ECE 198", "ECE 199",
+                 "ECE 193H", "ECE 194", "ECE 196",
                  "CSE 100", "CSE 101", "CSE 103", "CSE 105", "CSE 106","CSE 107",
                  "CSE 109", "CSE 110", "CSE 112", "CSE 120", "CSE 123", "CSE 124", 
                  "CSE 125", "CSE 127", "CSE 130", "CSE 131", "CSE 132A", "CSE 132B",
@@ -413,7 +413,7 @@ upper_div_eng = ["ECE 100", "ECE 101", "ECE 102", "ECE 103", "ECE 107",
                  "CSE 151B", "CSE 152A", "CSE 152B", "CSE 156", "CSE 158", "CSE 160",
                  "CSE 167", "CSE 163", "CSE 165", "CSE 166", "CSE 168", "CSE 169", "CSE 170",
                  "CSE 175", "CSE 176A", "CSE 176E", "CSE 180", "CSE 190", "CSE 192", "CSE 193",
-                 "CSE 194", "CSE 197", "CSE 198", "CSE 199", "CSE 199H"]
+                 "CSE 194"]
 
 template = ca.read_csv("./files/SY-Curriculum Plan-EC27.csv")
 
