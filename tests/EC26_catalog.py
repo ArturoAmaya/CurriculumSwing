@@ -420,3 +420,11 @@ print(chosen_courses_min)
 #results = cs.swing_calc(template, electives, catalog)
 
 #print(results[0])
+
+# TEST WITH AUTO CATALOG
+new_catalog = cs.make_catalog(cs.make_course_list())
+(chosen_courses_min2, new_curr_min2) = cs.min_complexity(template, [(1, list) for list in electives.values()], new_catalog)
+
+(chosen_courses_max2, new_curr_max2) = cs.max_complexity(template, [(1, list) for list in electives.values()], new_catalog)
+
+print("done")
