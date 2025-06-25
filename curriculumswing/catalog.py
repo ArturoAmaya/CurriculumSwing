@@ -397,6 +397,9 @@ def make_course_list():
         if name == "CGS 100B":
             courses[name].append("CGS 100A")
             continue
+        if name == "SOCI 109":
+            courses[name].append("SOCI 60")
+            continue
         # get the number of prereq IDs
         prereq_count = course_data['Prereq Sequence ID'].unique()
         for count in prereq_count:

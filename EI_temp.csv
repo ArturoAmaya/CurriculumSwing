@@ -1,0 +1,36 @@
+Curriculum,Computer Science,,,,,,,,,
+Degree Plan,Computer Science/ Eighth,,,,,,,,,
+Institution,"University of California, San Diego",,,,,,,,,
+Degree Type,BS,,,,,,,,,
+System Type,Quarter,,,,,,,,,
+CIP,11.0701,,,,,,,,,
+Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+1,MATH 20A,MATH,20A,,,,4,,,1
+2,CSE 11,CSE,11,,,,4,,,1
+4,MATH 20B,MATH,20B,1,,,4,,,2
+5,CSE 29,CSE,29,2,,,4,,,3
+6,MATH 20C,MATH,20C,4,,,4,,,3
+7,CSE 20,CSE,20,2,,,4,,,3
+8,CSE 12,CSE,12,2,,,4,,,3
+9,CSE 21,CSE,21,7,,,4,,,4
+10,CSE 30,CSE,30,5,,,4,,,4
+11,CSE 100 / 100R,CSE,100,9;8;5,,,4,,,5
+12,MATH 18,MATH,18,,,,4,,,5
+13,CSE 110,CSE,110,11,,,4,,,6
+14,CSE 101,CSE,101,9;8,,,4,,,6
+Additional Courses,,,,,,,,,,
+Course ID,Course Name,Prefix,Number,Prerequisites,Corequisites,Strict-Corequisites,Credit Hours,Institution,Canonical Name,Term
+38,DEI,,,,,,4,,,1
+15,CCE 1,CCE,1,,,,4,,,2
+39,BREADTH GE 1,,,,,,4,,,2
+16,CCE 2,CCE,2,15,,,4,,,4
+40,BREADTH GE 2,,,,,,4,,,5
+17,CCE 3,CCE,3,16,,,4,,,6
+41,BREADTH GE 3,,,,,,4,,,7
+42,BREADTH GE 4,,,,,,4,,,8
+18,CCE 120,CCE,120,,,,4,,,9
+43,BREADTH GE 5,,,,,,4,,,10
+44,BREADTH GE 6,,,,,,4,,,10
+45,BREADTH GE 7,,,,,,4,,,12
+46,BREADTH GE 8,,,,,,4,,,12

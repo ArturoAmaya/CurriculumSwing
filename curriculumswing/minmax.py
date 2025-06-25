@@ -1,4 +1,4 @@
-from curricularanalytics import Curriculum, Course
+from curricularanalytics import Curriculum, Course, pre
 from curricularanalyticsdiff.HelperFns import course_from_name
 from typing import Dict, List
 import copy
@@ -38,13 +38,13 @@ def add_course_prereqs_to_choice(course: Course, catalog: List[Course], reqs: Li
 def add_course(curr: Curriculum, course_name:str, catalog:List[Course])->Curriculum:
     
     # find the course in question
-    course = copy.deepcopy(next(c for c in catalog if c.name == course_name))
+    course = copy.deepcopy(next(c for c in catalog if (c.name == course_name or c.canonical_name == course_name or c.prefix + ' ' + c.num == course_name)))
     new_curr = copy.deepcopy(curr)
     # for each of its prereqs
     for prereq_id in list(course.requisites):
         # check if that prereq exists in the curr
         ## to do that get the name
-        if course.requisites[prereq_id] == "pre":
+        if course.requisites[prereq_id] == pre:
             prereq = next(c for c in catalog if c.id == prereq_id)
             if not (prereq.name in [c.name for c in new_curr.courses] or prereq.name in [c.prefix + ' ' + c.num for c in new_curr.courses]):
                 # if it's not in there, add it
@@ -53,7 +53,7 @@ def add_course(curr: Curriculum, course_name:str, catalog:List[Course])->Curricu
             # actually there is stuff to be done if it is in there: make sure it's hooked up right: delete the existing one and replace with the one in the curriculum
             elif course_from_name(prereq.name, new_curr).id != prereq_id: #i.e. if the prereq names match but the ids don't bc one was read from file and has a lame low-number id
                 del course.requisites[prereq_id]
-                course.add_requisite(course_from_name(prereq.name, new_curr), "pre")
+                course.add_requisite(course_from_name(prereq.name, new_curr), pre)
     return Curriculum(new_curr.name, new_curr.courses + [course], system_type=new_curr.system_type)
 
 def add_courses(curr:Curriculum, courses:List[List[str]], catalog:List[Course])->Curriculum:
@@ -71,9 +71,10 @@ def add_impact(curr:Curriculum, courses: List[str], catalog:List[Course])->List[
         # add course to curr
         new_curr = add_course(curr, course_name, catalog)
         # calculate metrics and subtract
+    
         curr.basic_metrics()
         new_curr.basic_metrics()
-        ret.append((new_curr.metrics['complexity'][0] - curr.metrics['complexity'][0], course_name))
+        ret.append((new_curr.metrics["complexity"][0] - curr.metrics["complexity"][0], course_name))
     return ret
 
 def organize_impacts(impacts: List[tuple[float, str]], reqs: List[tuple[int, List[str]]], max: bool)->List[tuple[float, str, List[int]]]:
@@ -305,6 +306,7 @@ def min_complexity(curr: Curriculum, reqs: List[tuple[int, List[str]]], catalog:
     new_curr = add_courses(curr, chosen_courses, catalog)
 
     # step 4 calculate stats
+    #del new_curr.basic_metrics
     new_metrics = new_curr.complexity()[0]
     base_metrics = curr.complexity()[0]
 

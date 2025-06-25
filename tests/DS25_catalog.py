@@ -269,3 +269,11 @@ new_curr = ca.Curriculum("new", dumb_list, system_type=quarter)
 new_curr = cs.add_courses(new_curr, [bad_l + bad_r[0:1] + bad_u], catalog)
 new_curr.complexity()[0]
 print("hi")
+
+new_catalog = cs.make_catalog(cs.make_course_list())
+(social_science2_courses_min, social_science2_curr_min2) = cs.min_complexity(template, social_science2, new_catalog)
+(social_science2_courses_max, social_science2_curr_max2) = cs.max_complexity(template, social_science2, new_catalog)
+
+print(social_science2_curr_max.metrics["complexity"])
+print(social_science2_curr_max2.metrics["complexity"])
+
